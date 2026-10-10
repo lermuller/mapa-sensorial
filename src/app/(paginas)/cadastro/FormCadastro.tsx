@@ -6,6 +6,7 @@ import { FormCodigo } from "@/components/FormCodigo";
 import { BlocoSensibilidade } from "@/components/BlocoSensibilidade";
 import { cadastrar } from "@/lib/acoes/conta";
 import { ESTIMULOS } from "@/lib/estimulos";
+import { IDADE_MINIMA } from "@/lib/legal";
 
 export function FormCadastro({ voltar }: { voltar: string }) {
   const [estado, enviar, enviando] = useFormulario(cadastrar, {});
@@ -98,7 +99,11 @@ export function FormCadastro({ voltar }: { voltar: string }) {
             />
             <span>
               Autorizo guardar meu perfil sensorial na minha conta para personalizar as buscas. Sei
-              que posso apagar quando quiser, e que ele nunca aparece para outras pessoas.
+              que posso apagar quando quiser, e que ele nunca aparece para outras pessoas.{" "}
+              <a href="/privacidade#perfil" target="_blank" rel="noopener">
+                Como cuidamos do perfil
+              </a>
+              .
               <span className="ajuda"> (Só é preciso se marcar algum estímulo.)</span>
             </span>
           </label>
@@ -111,8 +116,15 @@ export function FormCadastro({ voltar }: { voltar: string }) {
             className="mt-1.5 h-5 w-5 shrink-0 accent-destaque"
           />
           <span>
-            Concordo com os termos de uso e a política de privacidade.{" "}
-            <span className="ajuda">(Textos em elaboração.)</span>
+            Tenho {IDADE_MINIMA} anos ou mais e concordo com os{" "}
+            <a href="/termos" target="_blank" rel="noopener">
+              Termos de uso
+            </a>{" "}
+            e a{" "}
+            <a href="/privacidade" target="_blank" rel="noopener">
+              Política de privacidade
+            </a>
+            . <span className="ajuda">(Os links abrem em outra aba.)</span>
           </span>
         </label>
         <div role="alert">{estado.erro && <p className="erro">{estado.erro}</p>}</div>

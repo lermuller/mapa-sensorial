@@ -140,7 +140,7 @@ O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consenti
 - [ ] Nome definitivo
 - [x] Stack técnica: Next.js 16 (App Router, TypeScript) + Supabase (Postgres, login por link mágico). Hospedagem proposta: Vercel + Supabase
 - [x] Biblioteca de mapa: MapLibre GL com tiles do OpenFreeMap (dados do OpenStreetMap)
-- [ ] Texto da política de privacidade e dos termos de uso
+- [x] Texto da política de privacidade e dos termos de uso: rascunho em `/privacidade` e `/termos` (dados em `src/lib/legal.ts`), conta só para 18+
 - [ ] Quem modera as denúncias e com que critérios
 - [ ] Quais comunidades e associações de Porto Alegre envolver no teste inicial
 
@@ -150,6 +150,6 @@ O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consenti
 - [ ] Aumentar o limite de e-mails em *Authentication › Rate Limits* (padrão ~30/hora)
 - [ ] Publicar o site (Vercel) e adicionar `https://DOMINIO/auth/callback` nas Redirect URLs do Supabase; trocar a Site URL e `NEXT_PUBLIC_SITE_URL`
 - [ ] Apagar os relatos de demonstração: `npm run dados-demo -- --remover`
-- [ ] Textos da política de privacidade e dos termos (incluir o perfil sensorial como dado sensível, com consentimento e como apagar)
+- [ ] Revisão jurídica da política de privacidade e dos termos; confirmar o nome legal do responsável em `src/lib/legal.ts` e definir `NEXT_PUBLIC_EMAIL_CONTATO` (canal de privacidade)
 - [ ] Definir quem modera e adicionar na tabela `moderadores`
 - [ ] Revisar com a comunidade a lista de palavras do filtro (`src/lib/moderacao.ts`)

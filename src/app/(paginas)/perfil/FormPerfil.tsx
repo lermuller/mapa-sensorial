@@ -45,7 +45,11 @@ export function FormPerfil({
           />
           <span>
             Autorizo guardar meu perfil sensorial na minha conta para personalizar as buscas. Sei
-            que posso apagar quando quiser, e que ele nunca aparece para outras pessoas.
+            que posso apagar quando quiser, e que ele nunca aparece para outras pessoas.{" "}
+            <a href="/privacidade#perfil" target="_blank" rel="noopener">
+              Como cuidamos do perfil
+            </a>
+            .
           </span>
         </label>
 

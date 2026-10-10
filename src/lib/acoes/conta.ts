@@ -6,6 +6,7 @@ import { z } from "zod";
 import { avatarValido } from "@/lib/avatar";
 import { env } from "@/lib/env";
 import { ehEstimulo, type Estimulo } from "@/lib/estimulos";
+import { IDADE_MINIMA } from "@/lib/legal";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor, usuarioAtualId } from "@/lib/supabase/server";
 
@@ -41,7 +42,7 @@ export async function cadastrar(_a: EstadoConta, form: FormData): Promise<Estado
   });
   if (!r.success) return { erro: r.error.issues[0]?.message };
   if (form.get("aceite") !== "on") {
-    return { erro: "Para criar a conta, é preciso concordar com os termos." };
+    return { erro: `Para criar a conta, é preciso ter ${IDADE_MINIMA} anos ou mais e concordar com os termos.` };
   }
   // E-mails descartáveis são barrados no banco; aqui só damos a mensagem certa.
   if (await emailDescartavel(r.data.email)) {
