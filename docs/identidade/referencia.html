@@ -1,0 +1,838 @@
+<title>Identidade Mapa Sensorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
+<style>
+/* Layout: blocos em grade "bento", tipografia enorme e personagens cortados nas bordas.
+   Dois modos de contraste (suave e alto) trocam só os tokens; qualquer elemento pode fixar um modo com data-contraste.
+   Sempre sobre branco, sem animação. */
+:root, [data-contraste="suave"] {
+  --fundo: #ffffff;
+  --superficie: #f4f4f6;
+  --texto: #1a1d1c;
+  --texto-suave: #646b69;
+  --borda: #e6e6ea;
+  --linha: 0px;               /* contorno de cartões e botões */
+  --contorno: transparent;    /* contorno dos personagens */
+  --rosto: #1a1d1c;
+  --verde: #5ed3a6;           /* verde da marca, o mesmo nos dois modos */
+  --verde-suave: #c9f0de;
+  --verde-texto: #0f5c46;
+  --botao: #5ed3a6;
+  --botao-texto: #1a1d1c;
+  --botao-2: #1a1d1c;
+  --botao-2-texto: #ffffff;
+  --selo-forma: #5ed3a6;     /* símbolo: só a forma, sem círculo */
+  --foco: #0f5c46;
+
+  --c-som: #d9c2ff;
+  --c-luz: #ffe27a;
+  --c-cheiro: #ffc2e2;
+  --c-lotacao: #ffc59e;
+  --c-visual: #c2ccff;
+  --c-temperatura: #ffae9e;
+  --c-verde: #c9f0de;
+  --c-geral: #5ed3a6;
+}
+[data-contraste="alto"] {
+  --fundo: #ffffff;
+  --superficie: #ffffff;
+  --texto: #000000;
+  --texto-suave: #2b302e;
+  --borda: #000000;
+  --linha: 2.5px;
+  --contorno: #000000;
+  --rosto: #000000;
+  --verde: #5ed3a6;
+  --verde-suave: #5ed3a6;
+  --verde-texto: #000000;
+  --botao: #000000;
+  --botao-texto: #ffffff;
+  --botao-2: #ffffff;
+  --botao-2-texto: #000000;
+  --selo-forma: #000000;
+  --foco: #000000;
+
+  --c-som: #a46cff;
+  --c-luz: #ffc800;
+  --c-cheiro: #ff4fae;
+  --c-lotacao: #ff7a1f;
+  --c-visual: #5872ff;
+  --c-temperatura: #ff5240;
+  --c-verde: #5ed3a6;
+  --c-geral: #5ed3a6;
+}
+:root {
+  --fonte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --fonte-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --t-xs: 0.8125rem; --t-s: 0.9375rem; --t-m: 1.0625rem; --t-l: 1.375rem; --t-xl: clamp(1.75rem, 4vw, 2.5rem); --t-xxl: clamp(3rem, 10vw, 7rem);
+  --raio: 28px;
+  --raio-m: 18px;
+  --pilula: 999px;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; animation: none !important; transition: none !important; }
+body {
+  background: var(--fundo); color: var(--texto);
+  font-family: var(--fonte); font-size: var(--t-m); line-height: 1.55;
+  padding-inline: 20px; padding-block: 0 72px;
+}
+.pagina { max-width: 1040px; margin-inline: auto; display: grid; gap: 88px; }
+h1, h2, h3 { margin: 0; line-height: 1.02; text-wrap: balance; }
+h2 { font-size: var(--t-xl); font-weight: 800; letter-spacing: -0.035em; }
+h3 { font-size: var(--t-m); font-weight: 700; line-height: 1.2; }
+p { margin: 0; max-width: 60ch; }
+.rotulo { font-family: var(--fonte-mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--texto-suave); }
+.suave { color: var(--texto-suave); }
+.secao { display: grid; gap: 28px; }
+.secao > header { display: grid; gap: 12px; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 3px; }
+svg.p { display: block; overflow: visible; }
+
+/* Selo (cores pelos tokens do modo) */
+.selo { display: block; flex: none; }
+
+/* Topo com o seletor de contraste */
+.topo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--fundo); display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 14px; flex-wrap: wrap; border-bottom: var(--linha) solid var(--borda); }
+.topo .mini { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; }
+.alternar { display: inline-flex; background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: var(--pilula); padding: 4px; gap: 4px; }
+.alternar button { font: inherit; font-size: var(--t-s); font-weight: 700; border: 0; background: transparent; color: var(--texto); border-radius: var(--pilula); padding: 7px 16px; cursor: pointer; }
+.alternar button[aria-pressed="true"] { background: var(--botao-2); color: var(--botao-2-texto); }
+[data-contraste="alto"] .alternar { background: #ffffff; }
+
+/* Abertura */
+.abertura { position: relative; background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: 40px; overflow: hidden; padding: clamp(28px, 5vw, 56px); min-height: 520px; display: grid; align-content: start; gap: 22px; }
+.abertura h1 { font-size: var(--t-xxl); font-weight: 800; letter-spacing: -0.05em; line-height: 0.92; max-width: 7ch; position: relative; z-index: 2; }
+.abertura .sub { display: inline-flex; align-items: center; gap: 10px; justify-self: start; background: var(--fundo); border: var(--linha) solid var(--borda); border-radius: var(--pilula); padding: 8px 20px 8px 8px; font-size: clamp(1.125rem, 2.4vw, 1.5rem); font-weight: 700; position: relative; z-index: 2; }
+.abertura .lead { font-size: var(--t-l); line-height: 1.4; max-width: 26ch; position: relative; z-index: 2; }
+.abertura .bando { position: absolute; inset: 0; pointer-events: none; }
+.abertura .bando svg { position: absolute; }
+@media (max-width: 700px) {
+  .abertura { min-height: 640px; }
+  .abertura .lead { max-width: 20ch; }
+}
+
+/* Nome */
+.nome-grade { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .nome-grade { grid-template-columns: 1fr; } }
+.cartao { background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: var(--raio); padding: 26px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.cartao.branco { background: var(--fundo); }
+.opcoes-sub { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.opcoes-sub li { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; background: var(--fundo); border: var(--linha) solid var(--borda); border-radius: var(--raio-m); padding: 12px 16px; }
+.opcoes-sub li b { font-size: var(--t-l); letter-spacing: -0.02em; }
+.opcoes-sub li span { font-size: var(--t-xs); color: var(--texto-suave); }
+.opcoes-sub li.escolhida { background: var(--c-verde); }
+.dominios { display: grid; gap: 8px; font-size: var(--t-s); }
+.dominios div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--borda); padding-bottom: 8px; }
+.dominios code { font-family: var(--fonte-mono); }
+.tag { font-family: var(--fonte-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; border-radius: var(--pilula); padding: 2px 10px; background: var(--c-verde); color: var(--texto); white-space: nowrap; border: var(--linha) solid var(--borda); }
+.tag.nao { background: var(--superficie); color: var(--texto-suave); }
+
+/* Assinaturas nos dois modos */
+.dois-modos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; }
+.modo { background: var(--fundo); border: 1px solid #e6e6ea; border-radius: var(--raio); padding: 30px 26px; display: grid; gap: 26px; align-content: start; color: var(--texto); min-width: 0; }
+.modo[data-contraste="alto"] { border: 2.5px solid #000; }
+.modo .rotulo { color: var(--texto-suave); }
+.assinatura { display: flex; align-items: center; gap: 14px; }
+.assinatura .nome { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
+.assinatura .nome small { display: block; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; color: var(--texto-suave); margin-top: 6px; }
+.assinatura.empilhada { flex-direction: column; align-items: flex-start; }
+.mini-selos { display: flex; gap: 14px; align-items: center; }
+
+.leitura { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 32px; align-items: center; }
+@media (max-width: 680px) { .leitura { grid-template-columns: 1fr; } }
+.leitura .desenho { width: 100%; max-width: 280px; height: auto; }
+.leitura .guia { stroke: var(--texto); stroke-width: 3; stroke-dasharray: 8 8; fill: none; }
+.leitura .guia-texto { fill: var(--texto); font-family: var(--fonte-mono); font-size: 15px; font-weight: 600; }
+.paralelos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.paralelos div { background: var(--fundo); border: var(--linha) solid var(--borda); border-radius: var(--raio-m); padding: 14px 16px; font-size: var(--t-s); display: grid; gap: 4px; }
+
+/* Comparação dos modos */
+.comparar { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 16px; }
+.comparar .modo { gap: 18px; }
+.regras-modo { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: var(--t-s); }
+.regras-modo li { display: flex; gap: 10px; }
+.regras-modo li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--texto); margin-top: 0.55em; flex: none; }
+.amostra-bento { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Personagens */
+.personagens { overflow-x: auto; }
+.tabela-p { width: 100%; min-width: 640px; border-collapse: separate; border-spacing: 0 10px; }
+.tabela-p th { text-align: left; font-family: var(--fonte-mono); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--texto-suave); font-weight: 400; padding: 0 10px; }
+.tabela-p td { background: var(--superficie); padding: 12px 10px; vertical-align: middle; border-block: var(--linha) solid var(--borda); }
+.tabela-p td:first-child { border-radius: var(--raio-m) 0 0 var(--raio-m); padding-left: 18px; border-left: var(--linha) solid var(--borda); }
+.tabela-p td:last-child { border-radius: 0 var(--raio-m) var(--raio-m) 0; border-right: var(--linha) solid var(--borda); }
+.tabela-p td b { display: block; font-size: var(--t-m); }
+.tabela-p td span { font-size: var(--t-xs); color: var(--texto-suave); }
+.tabela-p svg.p { width: 64px; height: 64px; }
+.regras-p { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.regras-p .cartao { padding: 20px; gap: 6px; }
+.regras-p p { font-size: var(--t-s); color: var(--texto-suave); }
+
+/* Cores */
+.cores { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.cor { border-radius: var(--raio); padding: 16px; display: grid; gap: 10px; background: var(--superficie); border: var(--linha) solid var(--borda); }
+.cor .par { display: flex; gap: 8px; }
+.cor .par span { flex: 1; height: 64px; border-radius: var(--raio-m); display: flex; align-items: flex-end; padding: 8px 10px; font-family: var(--fonte-mono); font-size: 11px; color: #000; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08); }
+.cor .par span.escuro { color: #fff; }
+.cor strong { font-size: var(--t-s); }
+.cor p { font-size: var(--t-xs); color: var(--texto-suave); }
+.cor .hex { display: flex; gap: 6px; flex-wrap: wrap; }
+.cor button { font-family: var(--fonte-mono); font-size: 12px; background: var(--fundo); color: var(--texto); border: 1px solid var(--borda); border-radius: var(--pilula); padding: 3px 10px; cursor: pointer; }
+
+/* Tipografia */
+.tipo { display: grid; gap: 0; background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: var(--raio); overflow: hidden; }
+.tipo .linha-t { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 20px; padding: 20px 26px; border-top: 1px solid var(--borda); align-items: baseline; }
+.tipo .linha-t:first-child { border-top: 0; }
+@media (max-width: 560px) { .tipo .linha-t { grid-template-columns: 1fr; gap: 6px; } }
+
+/* Componentes */
+.componentes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.botao { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font: inherit; font-weight: 700; font-size: var(--t-m); border-radius: var(--pilula); padding: 13px 24px; border: var(--linha) solid var(--borda); background: var(--botao); color: var(--botao-texto); cursor: pointer; }
+.botao.escuro { background: var(--botao-2); color: var(--botao-2-texto); }
+.botao.claro { background: var(--fundo); color: var(--texto); border: 2px solid var(--texto); }
+.botao .seta { width: 34px; height: 34px; border-radius: 50%; background: var(--botao-texto); color: var(--botao); display: grid; place-items: center; font-size: 18px; margin-right: -14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-s); font-weight: 700; border-radius: var(--pilula); padding: 4px 14px 4px 5px; background: var(--fundo); border: var(--linha) solid var(--borda); }
+[data-contraste="suave"] .chip, :root:not([data-contraste="alto"]) .chip { box-shadow: inset 0 0 0 1px var(--borda); }
+.chip svg.p { width: 30px; height: 30px; }
+.chip.ativo { background: var(--c-verde); }
+.badge { display: inline-flex; align-items: center; gap: 8px; border-radius: var(--raio-m); padding: 8px 14px 8px 8px; font-weight: 700; border: var(--linha) solid var(--borda); }
+.badge svg.p { width: 36px; height: 36px; }
+.bloco svg.p, .badge svg.p { --c-som: #ffffff; --c-luz: #ffffff; --c-cheiro: #ffffff; --c-lotacao: #ffffff; --c-visual: #ffffff; --c-temperatura: #ffffff; }
+.badge small { display: block; font-weight: 400; font-size: var(--t-xs); }
+
+/* Telas */
+.telas { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: 40px; padding: clamp(20px, 4vw, 44px) 16px; }
+.celular { width: 300px; max-width: 100%; aspect-ratio: 300 / 620; background: #111312; border-radius: 46px; padding: 10px; flex: none; }
+.celular .tela { background: var(--fundo); border-radius: 37px; height: 100%; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+.celular .status { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 6px; font-size: 13px; font-weight: 700; }
+.celular .ilha { width: 86px; height: 24px; background: #111312; border-radius: 99px; }
+.celular .conteudo { padding: 10px 16px 16px; display: grid; gap: 12px; align-content: start; flex: 1; position: relative; }
+.t1 h4 { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.05em; line-height: 0.92; margin: 6px 0 0; }
+.t1 p { font-size: 0.95rem; line-height: 1.35; }
+.busca { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: var(--pilula); padding: 6px 6px 6px 16px; font-size: 0.9rem; color: var(--texto-suave); }
+.busca i { width: 34px; height: 34px; border-radius: 50%; background: var(--botao-2); color: var(--botao-2-texto); display: grid; place-items: center; font-style: normal; font-weight: 800; }
+.t1 .chips { gap: 6px; }
+.t1 .chip { font-size: 0.8rem; padding: 3px 10px 3px 4px; }
+.t1 .chip svg.p { width: 24px; height: 24px; }
+.t1 .chao { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; }
+.t1 .chao svg { position: absolute; }
+.t2 .cab { display: flex; justify-content: space-between; align-items: center; }
+.t2 .voltar { width: 36px; height: 36px; border-radius: 50%; border: var(--linha) solid var(--borda); background: var(--superficie); display: grid; place-items: center; font-weight: 800; }
+.t2 h4 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1; margin: 0; }
+.t2 .onde { font-size: 0.78rem; color: var(--texto-suave); margin-top: 4px; }
+.bento { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bloco { border-radius: 20px; padding: 12px; display: grid; gap: 2px; position: relative; overflow: hidden; border: var(--linha) solid var(--borda); min-height: 96px; align-content: start; }
+.bloco .rot { font-size: 0.72rem; font-weight: 700; }
+.bloco .nivel { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.bloco svg.p { position: absolute; right: -10px; bottom: -12px; width: 64px; height: 64px; }
+.bloco.largo { grid-column: span 2; min-height: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bloco.largo .nivel { font-size: 1.1rem; }
+.bloco.poucos { font-size: 0.68rem; }
+.t2 .botao { width: 100%; font-size: 0.95rem; padding: 11px 16px; }
+
+/* Composição */
+.composicao { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.composicao .cartao { padding: 0; overflow: hidden; gap: 0; }
+.composicao .quadro { height: 150px; position: relative; overflow: hidden; background: var(--fundo); border-bottom: var(--linha) solid var(--borda); }
+.composicao .quadro svg { position: absolute; }
+.composicao .quadro .titulo-falso { position: absolute; left: 16px; top: 16px; font-weight: 800; font-size: 1.6rem; letter-spacing: -0.05em; line-height: 0.9; }
+.composicao .texto { padding: 16px 18px 18px; display: grid; gap: 4px; }
+.composicao .texto p { font-size: var(--t-s); color: var(--texto-suave); }
+
+/* Peças de comunicação */
+.pecas { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.peca { position: relative; overflow: hidden; border-radius: var(--raio); background: var(--fundo); border: max(1px, var(--linha)) solid var(--borda); container-type: inline-size; min-width: 0; }
+.peca.larga { grid-column: span 6; aspect-ratio: 16 / 7; }
+.peca.quadrada { grid-column: span 3; aspect-ratio: 1; }
+.peca.story { grid-column: span 2; aspect-ratio: 9 / 16; }
+.peca.quadrada.menor { grid-column: span 4; }
+@media (max-width: 760px) { .regras-comp { grid-column: span 6 !important; grid-template-columns: 1fr; } .peca.larga, .peca.quadrada, .peca.quadrada.menor { grid-column: span 6; } .peca.story { grid-column: span 6; max-width: 360px; justify-self: center; width: 100%; } }
+.peca svg.p { position: absolute; }
+.peca .chamada { position: absolute; left: 6cqw; top: 6cqw; z-index: 2; font-weight: 800; letter-spacing: -0.05em; line-height: 0.92; margin: 0; font-size: 9cqw; }
+.peca.larga .chamada { font-size: 6.4cqw; top: 7cqw; }
+.peca.story .chamada { font-size: 13cqw; top: 24cqw; left: 8cqw; }
+.peca .assina { position: absolute; left: 6cqw; bottom: 5cqw; z-index: 2; display: flex; align-items: center; gap: 1.6cqw; font-weight: 800; letter-spacing: -0.03em; font-size: 3.4cqw; line-height: 1; }
+.peca .assina svg { width: 6cqw; height: 6cqw; position: static; }
+.peca .assina small { display: block; font-weight: 600; font-size: 0.8em; color: var(--texto-suave); letter-spacing: 0; margin-top: 0.3em; }
+.peca.larga .assina { font-size: 2.2cqw; left: 7cqw; bottom: 6cqw; }
+.peca.larga .assina svg { width: 4cqw; height: 4cqw; }
+.peca.story .assina { font-size: 5cqw; left: 8cqw; top: 6cqw; bottom: auto; }
+.peca.story .assina svg { width: 9cqw; height: 9cqw; }
+.peca .pilula { position: absolute; z-index: 2; left: 8cqw; top: 68cqw; background: var(--botao); color: var(--botao-texto); border: var(--linha) solid var(--borda); border-radius: 999px; font-weight: 700; font-size: 5cqw; padding: 3cqw 6cqw; }
+.peca .grade { position: absolute; left: 6cqw; top: 36cqw; display: grid; grid-template-columns: repeat(4, 20cqw); grid-auto-rows: 17.5cqw; gap: 2.5cqw 2cqw; }
+.peca .grade svg.p, .peca .grade .selo-cel { position: static; width: 20cqw; height: 17.5cqw; }
+.peca .grade .selo-cel { display: flex; align-items: center; justify-content: center; }
+.peca .grade .selo-cel svg { width: 14cqw; height: 14cqw; }
+.legenda-peca { font-size: var(--t-xs); color: var(--texto-suave); grid-column: span 6; margin-top: -6px; }
+.regras-comp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.regras-comp .cartao { padding: 20px; gap: 6px; }
+.regras-comp p { font-size: var(--t-s); color: var(--texto-suave); }
+
+/* Tom */
+.tom { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.tom .cartao { padding: 20px; gap: 8px; }
+.tom .antes { font-size: var(--t-s); color: var(--texto-suave); text-decoration: line-through; }
+.tom .depois { font-size: var(--t-l); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+
+.sensoriais { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.sensoriais li { background: var(--superficie); border: var(--linha) solid var(--borda); border-radius: var(--raio); padding: 18px 22px; display: grid; gap: 4px; font-size: var(--t-s); }
+.sensoriais li b { font-size: var(--t-m); }
+.sensoriais li span { color: var(--texto-suave); }
+
+.rodape { border-top: var(--linha) solid var(--borda); border-top-width: max(1px, var(--linha)); padding-top: 24px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: var(--t-s); color: var(--texto-suave); }
+.copiado { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: #1a1d1c; color: #fff; padding: 8px 18px; border-radius: var(--pilula); font-size: var(--t-s); z-index: 9; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="forma-path" d="M22.7169 14.4782L78.434 0.518414C92.4905 -3.00339 103.159 12.1472 96.4226 23.941C96.08 24.4477 95.7487 24.9617 95.4247 25.4802C95.2326 25.7453 95.0341 26.0103 94.8225 26.2704L94.8585 26.4084C88.1018 37.752 85.7541 51.7065 89.4414 65.4675C96.6866 92.5073 124.48 108.554 151.519 101.308C167.681 96.9779 179.912 85.3061 185.593 70.8429C193.132 58.7557 212.27 60.8526 216.387 75.3821L233.632 136.249C238.194 152.351 228.698 169.073 212.533 173.404L65.0318 212.927C54.3626 215.786 43.3958 209.454 40.5369 198.785L1.03007 51.3434C-3.30771 35.1546 6.45947 18.5514 22.7169 14.4782Z"/>
+    <symbol id="logo" viewBox="0 0 235 214">
+      <use href="#forma-path" style="fill: var(--selo-forma)"/>
+    </symbol>
+    <symbol id="f-som" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><polygon points="8,50 92,8 92,92" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="23"/></g><g style="color: var(--c-som)"><polygon points="8,50 92,8 92,92" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="16"/></g></symbol>
+    <symbol id="p-som-calmo" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-som-ok" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-som-alto" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-som-feliz" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-som-curioso" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-som-piscando" viewBox="-10 -10 120 120"><use href="#f-som"/><g transform="translate(66 50) scale(1.05) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-luz" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><polygon points="50.0,6.0 58.8,17.2 72.0,11.9 74.0,26.0 88.1,28.0 82.8,41.2 94.0,50.0 82.8,58.8 88.1,72.0 74.0,74.0 72.0,88.1 58.8,82.8 50.0,94.0 41.2,82.8 28.0,88.1 26.0,74.0 11.9,72.0 17.2,58.8 6.0,50.0 17.2,41.2 11.9,28.0 26.0,26.0 28.0,11.9 41.2,17.2" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="15"/></g><g style="color: var(--c-luz)"><polygon points="50.0,6.0 58.8,17.2 72.0,11.9 74.0,26.0 88.1,28.0 82.8,41.2 94.0,50.0 82.8,58.8 88.1,72.0 74.0,74.0 72.0,88.1 58.8,82.8 50.0,94.0 41.2,82.8 28.0,88.1 26.0,74.0 11.9,72.0 17.2,58.8 6.0,50.0 17.2,41.2 11.9,28.0 26.0,26.0 28.0,11.9 41.2,17.2" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="8"/></g></symbol>
+    <symbol id="p-luz-calmo" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-luz-ok" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-luz-alto" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-luz-feliz" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-luz-curioso" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-luz-piscando" viewBox="-10 -10 120 120"><use href="#f-luz"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-cheiro" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7"><circle cx="30" cy="50" r="23"/><circle cx="70" cy="50" r="23"/><circle cx="50" cy="30" r="23"/><circle cx="50" cy="70" r="23"/><circle cx="50" cy="50" r="26"/></g></g><g style="color: var(--c-cheiro)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0"><circle cx="30" cy="50" r="23"/><circle cx="70" cy="50" r="23"/><circle cx="50" cy="30" r="23"/><circle cx="50" cy="70" r="23"/><circle cx="50" cy="50" r="26"/></g></g></symbol>
+    <symbol id="p-cheiro-calmo" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-cheiro-ok" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-cheiro-alto" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-cheiro-feliz" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-cheiro-curioso" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-cheiro-piscando" viewBox="-10 -10 120 120"><use href="#f-cheiro"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-lotacao" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7"><circle cx="33" cy="54" r="31"/><circle cx="67" cy="46" r="31"/></g></g><g style="color: var(--c-lotacao)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0"><circle cx="33" cy="54" r="31"/><circle cx="67" cy="46" r="31"/></g></g></symbol>
+    <symbol id="p-lotacao-calmo" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-lotacao-ok" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-lotacao-alto" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-lotacao-feliz" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-lotacao-curioso" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-lotacao-piscando" viewBox="-10 -10 120 120"><use href="#f-lotacao"/><g transform="translate(50 50) scale(1.25) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-visual" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><path d="M2 50 C16 6 84 6 98 50 C84 94 16 94 2 50 Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7"/></g><g style="color: var(--c-visual)"><path d="M2 50 C16 6 84 6 98 50 C84 94 16 94 2 50 Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0"/></g></symbol>
+    <symbol id="p-visual-calmo" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-visual-ok" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-visual-alto" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-visual-feliz" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-visual-curioso" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-visual-piscando" viewBox="-10 -10 120 120"><use href="#f-visual"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-temperatura" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7"><rect x="34" y="2" width="32" height="60" rx="16"/><circle cx="50" cy="66" r="31"/></g></g><g style="color: var(--c-temperatura)"><g fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0"><rect x="34" y="2" width="32" height="60" rx="16"/><circle cx="50" cy="66" r="31"/></g></g></symbol>
+    <symbol id="p-temperatura-calmo" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-temperatura-ok" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-temperatura-alto" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-temperatura-feliz" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-temperatura-curioso" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-temperatura-piscando" viewBox="-10 -10 120 120"><use href="#f-temperatura"/><g transform="translate(50 66) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-bolha" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><path d="M50 8 C78 8 94 26 92 52 C90 78 72 93 48 92 C22 91 7 74 8 50 C9 24 24 8 50 8 Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7"/></g><g style="color: var(--c-geral)"><path d="M50 8 C78 8 94 26 92 52 C90 78 72 93 48 92 C22 91 7 74 8 50 C9 24 24 8 50 8 Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0"/></g></symbol>
+    <symbol id="p-bolha-calmo" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-bolha-ok" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-bolha-alto" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-bolha-feliz" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-bolha-curioso" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-bolha-piscando" viewBox="-10 -10 120 120"><use href="#f-bolha"/><g transform="translate(50 52) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-bloco" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><rect x="12" y="12" width="76" height="76" rx="20" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="7" transform="rotate(-8 50 50)"/></g><g style="color: var(--c-geral)"><rect x="12" y="12" width="76" height="76" rx="20" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="0" transform="rotate(-8 50 50)"/></g></symbol>
+    <symbol id="p-bloco-calmo" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-bloco-ok" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-bloco-alto" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-bloco-feliz" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-bloco-curioso" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-bloco-piscando" viewBox="-10 -10 120 120"><use href="#f-bloco"/><g transform="translate(50 50) scale(1.35) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-triangulo" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><polygon points="50,8 92,88 8,88" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="23"/></g><g style="color: var(--c-geral)"><polygon points="50,8 92,88 8,88" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="16"/></g></symbol>
+    <symbol id="p-triangulo-calmo" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-triangulo-ok" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-triangulo-alto" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-triangulo-feliz" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-triangulo-curioso" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-triangulo-piscando" viewBox="-10 -10 120 120"><use href="#f-triangulo"/><g transform="translate(50 64) scale(1.15) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+    <symbol id="f-octogono" viewBox="-10 -10 120 120"><g style="color: var(--contorno)"><polygon points="66.1,11.2 88.8,33.9 88.8,66.1 66.1,88.8 33.9,88.8 11.2,66.1 11.2,33.9 33.9,11.2" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="21"/></g><g style="color: var(--c-geral)"><polygon points="66.1,11.2 88.8,33.9 88.8,66.1 66.1,88.8 33.9,88.8 11.2,66.1 11.2,33.9 33.9,11.2" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-width="14"/></g></symbol>
+    <symbol id="p-octogono-calmo" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 46 Q38 51 43 46"/><path d="M57 46 Q62 51 67 46"/><path d="M42 59 Q50 66 58 59"/></g></g></symbol>
+    <symbol id="p-octogono-ok" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 44 V48"/><path d="M62 44 V48"/><path d="M43 61 H57"/></g></g></symbol>
+    <symbol id="p-octogono-alto" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M32 42 L41 46 L32 50"/><path d="M68 42 L59 46 L68 50"/><path d="M38 64 L43 59 L48 64 L53 59 L58 64 L62 60"/></g></g></symbol>
+    <symbol id="p-octogono-feliz" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M38 43 V48"/><path d="M62 43 V48"/></g><path d="M38 56 H62 Q62 70 50 70 Q38 70 38 56 Z" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-octogono-curioso" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><circle cx="38" cy="46" r="6" fill="var(--rosto)"/><circle cx="62" cy="46" r="6" fill="var(--rosto)"/><circle cx="40" cy="44" r="2" fill="var(--c-brilho, #fff)"/><circle cx="64" cy="44" r="2" fill="var(--c-brilho, #fff)"/><ellipse cx="50" cy="63" rx="4" ry="5" fill="var(--rosto)"/></g></symbol>
+    <symbol id="p-octogono-piscando" viewBox="-10 -10 120 120"><use href="#f-octogono"/><g transform="translate(50 50) scale(1.3) translate(-50 -50)"><g stroke="var(--rosto)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M33 47 Q38 42 43 47"/><path d="M62 43 V48"/><path d="M42 59 Q50 67 58 59"/></g></g></symbol>
+  </defs>
+</svg>
+
+<div class="pagina">
+
+  <div class="topo">
+    <div class="mini"><svg class="selo" width="30" height="30" aria-hidden="true"><use href="#logo"/></svg>Mapa Sensorial</div>
+    <div class="alternar" role="group" aria-label="Contraste da página">
+      <button type="button" id="bt-suave" aria-pressed="true">Suave</button>
+      <button type="button" id="bt-alto" aria-pressed="false">Alto contraste</button>
+    </div>
+  </div>
+
+  <section class="abertura" aria-label="Abertura">
+    <span class="rotulo">Identidade visual · rascunho · outubro de 2026</span>
+    <h1>Mapa Sensorial</h1>
+    <span class="sub"><svg class="selo" width="40" height="40" aria-hidden="true"><use href="#logo"/></svg>como é lá?</span>
+    <p class="lead">Som, luz, cheiro e lotação dos lugares de Porto Alegre, contados por quem já foi.</p>
+    <div class="bando" aria-hidden="true">
+      <svg class="p" width="230" height="230" style="right:-40px; top:40px; transform: rotate(12deg)"><use href="#p-bolha-feliz"/></svg>
+      <svg class="p" width="190" height="190" style="right:170px; bottom:-50px; transform: rotate(-10deg); --c-geral: var(--verde-suave)"><use href="#p-triangulo-curioso"/></svg>
+      <svg class="p" width="210" height="210" style="right:-30px; bottom:-60px; transform: rotate(8deg)"><use href="#p-bloco-calmo"/></svg>
+      <svg class="p" width="150" height="150" style="right:230px; top:-40px; transform: rotate(-14deg); --c-geral: var(--verde-suave)"><use href="#p-octogono-piscando"/></svg>
+    </div>
+  </section>
+
+  <section class="secao" id="nome">
+    <header>
+      <span class="rotulo">Nome</span>
+      <h2>Mapa Sensorial, como é lá?</h2>
+      <p class="suave">O nome diz o que é. O subtítulo diz como a gente fala: uma pergunta, de quem quer saber antes de ir.</p>
+    </header>
+    <div class="nome-grade">
+      <div class="cartao">
+        <span class="rotulo">Opções de subtítulo</span>
+        <ul class="opcoes-sub">
+          <li class="escolhida"><b>como é lá?</b><span>curta, vira bordão</span></li>
+          <li><b>pra saber como é lá antes de ir</b><span>explica o uso</span></li>
+          <li><b>como é lá, contado por quem foi</b><span>reforça a comunidade</span></li>
+        </ul>
+      </div>
+      <div class="cartao">
+        <span class="rotulo">Domínios · consulta de 9 out. 2026</span>
+        <div class="dominios">
+          <div><code>mapasensorial.org</code><span class="tag">livre</span></div>
+          <div><code>mapasensorial.com</code><span class="tag">livre</span></div>
+          <div><code>mapasensorial.org.br</code><span class="tag">livre</span></div>
+          <div><code>mapasensorial.com.br</code><span class="tag nao">conferir</span></div>
+          <div><code>comoe.la</code><span class="tag">livre</span></div>
+        </div>
+        <p class="suave" style="font-size: var(--t-xs)">"Mapa sensorial" é um termo comum, usado por museus e shoppings. Isso facilita a busca, mas dificulta registrar a marca no INPI. O subtítulo e o selo é que tornam a marca única.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="selo">
+    <header>
+      <span class="rotulo">Símbolo e assinaturas</span>
+      <h2>Um símbolo, dois contrastes</h2>
+      <p class="suave">O símbolo é só a forma, sem círculo em volta. No modo suave, ele vai no verde da marca, mais claro, entre o pastel e o saturado, para conversar com as cores dos estímulos. No alto contraste, vai em preto. Sempre sobre branco.</p>
+    </header>
+    <div class="dois-modos">
+      <div class="modo" data-contraste="suave">
+        <span class="rotulo">Suave</span>
+        <div class="assinatura"><svg class="selo" width="64" height="64" aria-hidden="true"><use href="#logo"/></svg><div class="nome">Mapa Sensorial<small>como é lá?</small></div></div>
+        <div class="assinatura empilhada"><svg class="selo" width="80" height="80" aria-hidden="true"><use href="#logo"/></svg><div class="nome">Mapa<br>Sensorial<small>como é lá?</small></div></div>
+        <div class="mini-selos"><svg class="selo" width="24" height="24" aria-hidden="true"><use href="#logo"/></svg><svg class="selo" width="36" height="36" aria-hidden="true"><use href="#logo"/></svg><span class="suave" style="font-size: var(--t-xs)">mínimo 24 px</span></div>
+      </div>
+      <div class="modo" data-contraste="alto">
+        <span class="rotulo">Alto contraste</span>
+        <div class="assinatura"><svg class="selo" width="64" height="64" aria-hidden="true"><use href="#logo"/></svg><div class="nome">Mapa Sensorial<small>como é lá?</small></div></div>
+        <div class="assinatura empilhada"><svg class="selo" width="80" height="80" aria-hidden="true"><use href="#logo"/></svg><div class="nome">Mapa<br>Sensorial<small>como é lá?</small></div></div>
+        <div class="mini-selos"><svg class="selo" width="24" height="24" aria-hidden="true"><use href="#logo"/></svg><svg class="selo" width="36" height="36" aria-hidden="true"><use href="#logo"/></svg><span class="suave" style="font-size: var(--t-xs)">mínimo 24 px</span></div>
+      </div>
+    </div>
+
+    <div class="cartao leitura">
+      <svg class="desenho" viewBox="-12 -12 260 262" aria-label="Símbolo com o recorte circular e a ponta marcados">
+        <use href="#forma-path" style="fill: var(--selo-forma)"/>
+        <circle class="guia" cx="138.4" cy="52.4" r="50.7"/>
+        <text class="guia-texto" x="138.4" y="58" text-anchor="middle">o lugar</text>
+        <circle class="guia" cx="50" cy="203" r="15"/>
+        <text class="guia-texto" x="74" y="242">a ponta do pin</text>
+      </svg>
+      <div style="display:grid; gap:14px">
+        <span class="rotulo">O que o símbolo quer dizer</span>
+        <h3 style="font-size: var(--t-l)">Um canto que guarda um espaço</h3>
+        <p>A forma é um canto inclinado com um círculo recortado, como um abrigo que segura um lugar vazio. O círculo é o lugar que a pessoa ainda não conhece. O canto é o que a comunidade conta sobre ele.</p>
+        <div class="paralelos">
+          <div><b>Um pin de localização</b>O círculo é a cabeça do pin; o canto de baixo, a ponta que marca o lugar.</div>
+          <div><b>Uma peça de quebra-cabeça</b>O recorte é o encaixe. Cada relato se encaixa nos outros até formar a imagem de como é lá.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="contraste">
+    <header>
+      <span class="rotulo">Dois modos</span>
+      <h2>Suave ou alto contraste, a pessoa escolhe</h2>
+      <p class="suave">Tem gente que se cansa com cor forte e gente que precisa de contorno marcado para enxergar. A marca funciona dos dois jeitos, e o site deixa trocar a qualquer hora, como o botão no topo desta página. O texto passa no contraste AA (4,5:1) nos dois modos; o que muda é a força das cores e dos contornos.</p>
+    </header>
+    <div class="comparar">
+      <div class="modo" data-contraste="suave">
+        <span class="rotulo">Suave · padrão</span>
+        <div class="amostra-bento">
+          <div class="bloco" style="background: var(--c-som)"><span class="rot">Som</span><span class="nivel">Baixo</span><svg class="p"><use href="#p-som-calmo"/></svg></div>
+          <div class="bloco" style="background: var(--c-lotacao)"><span class="rot">Lotação</span><span class="nivel">Alta</span><svg class="p"><use href="#p-lotacao-alto"/></svg></div>
+        </div>
+        <ul class="regras-modo">
+          <li>Cores pastel, sem contornos.</li>
+          <li>Texto em quase-preto, cinza nas legendas.</li>
+          <li>Botão principal verde com texto escuro.</li>
+        </ul>
+      </div>
+      <div class="modo" data-contraste="alto">
+        <span class="rotulo">Alto contraste</span>
+        <div class="amostra-bento">
+          <div class="bloco" style="background: var(--c-som)"><span class="rot">Som</span><span class="nivel">Baixo</span><svg class="p"><use href="#p-som-calmo"/></svg></div>
+          <div class="bloco" style="background: var(--c-lotacao)"><span class="rot">Lotação</span><span class="nivel">Alta</span><svg class="p"><use href="#p-lotacao-alto"/></svg></div>
+        </div>
+        <ul class="regras-modo">
+          <li>Cores saturadas com contorno preto de 2,5 px.</li>
+          <li>Todo texto em preto puro.</li>
+          <li>Botão principal preto com texto branco. Selo preto.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="personagens">
+    <header>
+      <span class="rotulo">Personagens</span>
+      <h2>Rostos padrão para falar com todo mundo</h2>
+      <p class="suave">Na comunicação geral (abertura do site, redes, avisos), aparecem quatro formas em verde: bolha, bloco, triângulo e octógono. Elas têm quatro expressões amigáveis e nenhuma ligação com estímulo. Em peças sobre a comunidade, podem ganhar as outras cores.</p>
+    </header>
+    <div class="personagens">
+      <table class="tabela-p">
+        <thead><tr><th>Forma</th><th>Feliz</th><th>Tranquilo</th><th>Curioso</th><th>Piscando</th></tr></thead>
+        <tbody>
+          <tr><td><b>Bolha</b></td><td><svg class="p"><use href="#p-bolha-feliz"/></svg></td><td><svg class="p"><use href="#p-bolha-calmo"/></svg></td><td><svg class="p"><use href="#p-bolha-curioso"/></svg></td><td><svg class="p"><use href="#p-bolha-piscando"/></svg></td></tr>
+          <tr><td><b>Bloco</b></td><td><svg class="p"><use href="#p-bloco-feliz"/></svg></td><td><svg class="p"><use href="#p-bloco-calmo"/></svg></td><td><svg class="p"><use href="#p-bloco-curioso"/></svg></td><td><svg class="p"><use href="#p-bloco-piscando"/></svg></td></tr>
+          <tr><td><b>Triângulo</b></td><td><svg class="p"><use href="#p-triangulo-feliz"/></svg></td><td><svg class="p"><use href="#p-triangulo-calmo"/></svg></td><td><svg class="p"><use href="#p-triangulo-curioso"/></svg></td><td><svg class="p"><use href="#p-triangulo-piscando"/></svg></td></tr>
+          <tr><td><b>Octógono</b></td><td><svg class="p"><use href="#p-octogono-feliz"/></svg></td><td><svg class="p"><use href="#p-octogono-calmo"/></svg></td><td><svg class="p"><use href="#p-octogono-curioso"/></svg></td><td><svg class="p"><use href="#p-octogono-piscando"/></svg></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="secao" id="estimulos">
+    <header>
+      <span class="rotulo">Personagens de estímulo</span>
+      <h2>Cada estímulo tem um formato, uma cor e três caras</h2>
+      <p class="suave">Quando o assunto é um estímulo, entra o personagem dele. O formato e a cor dizem qual é o estímulo; a cara diz a intensidade: tranquila, neutra ou sobrecarregada. Sempre com o nível escrito ao lado.</p>
+    </header>
+    <div class="personagens">
+      <table class="tabela-p">
+        <thead><tr><th>Estímulo</th><th>Baixo</th><th>Médio</th><th>Alto</th></tr></thead>
+        <tbody>
+          <tr><td><b>Som</b><span>Triângulo deitado, como o ícone de volume</span></td><td><svg class="p"><use href="#p-som-calmo"/></svg></td><td><svg class="p"><use href="#p-som-ok"/></svg></td><td><svg class="p"><use href="#p-som-alto"/></svg></td></tr>
+          <tr><td><b>Luz</b><span>Sol</span></td><td><svg class="p"><use href="#p-luz-calmo"/></svg></td><td><svg class="p"><use href="#p-luz-ok"/></svg></td><td><svg class="p"><use href="#p-luz-alto"/></svg></td></tr>
+          <tr><td><b>Cheiro</b><span>Flor</span></td><td><svg class="p"><use href="#p-cheiro-calmo"/></svg></td><td><svg class="p"><use href="#p-cheiro-ok"/></svg></td><td><svg class="p"><use href="#p-cheiro-alto"/></svg></td></tr>
+          <tr><td><b>Lotação</b><span>Duas bolhas encostadas, gente junta</span></td><td><svg class="p"><use href="#p-lotacao-calmo"/></svg></td><td><svg class="p"><use href="#p-lotacao-ok"/></svg></td><td><svg class="p"><use href="#p-lotacao-alto"/></svg></td></tr>
+          <tr><td><b>Visual</b><span>Olho</span></td><td><svg class="p"><use href="#p-visual-calmo"/></svg></td><td><svg class="p"><use href="#p-visual-ok"/></svg></td><td><svg class="p"><use href="#p-visual-alto"/></svg></td></tr>
+          <tr><td><b>Temperatura</b><span>Termômetro</span></td><td><svg class="p"><use href="#p-temperatura-calmo"/></svg></td><td><svg class="p"><use href="#p-temperatura-ok"/></svg></td><td><svg class="p"><use href="#p-temperatura-alto"/></svg></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="regras-p">
+      <div class="cartao"><h3>Formato manda no significado</h3><p>Rostos padrão são verdes, ou coloridos quando a peça fala de diversidade. Formas de estímulo (triângulo deitado, sol, flor, duas bolhas, olho, termômetro) só aparecem quando o assunto é o estímulo.</p></div>
+      <div class="cartao"><h3>Três caras de intensidade</h3><p>Olhos fechados e sorriso, olhos de ponto e boca reta, olhos apertados e boca em zigue-zague. Nunca outras expressões em estímulos.</p></div>
+      <div class="cartao"><h3>Formato fixo por estímulo</h3><p>Som é sempre o triângulo deitado, luz é sempre o sol. Quem não distingue cores reconhece pelo formato.</p></div>
+      <div class="cartao"><h3>Nunca se mexem</h3><p>Sem piscar, pular ou girar. Podem aparecer inclinados e cortados na borda, mas parados.</p></div>
+    </div>
+  </section>
+
+  <section class="secao" id="cores">
+    <header>
+      <span class="rotulo">Cores</span>
+      <h2>Um verde da marca, seis cores de estímulo</h2>
+      <p class="suave">Cada cor tem a versão suave e a de alto contraste. Texto preto passa no AA sobre todas elas. Clique num código para copiar.</p>
+    </header>
+    <div class="cores" id="lista-cores">
+      <div class="cor">
+        <div class="par"><span style="background:#5ED3A6">suave</span><span style="background:#5ED3A6">alto</span></div>
+        <strong>Verde da marca</strong><p>O mesmo nos dois modos: selo, botão, rostos padrão</p>
+        <div class="hex"><button type="button" data-hex="#5ED3A6">#5ED3A6</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#C9F0DE">suave</span><span style="background:#5ED3A6">alto</span></div>
+        <strong>Verde suave</strong><p>Melhor horário, itens escolhidos, rostos padrão</p>
+        <div class="hex"><button type="button" data-hex="#C9F0DE">#C9F0DE</button><button type="button" data-hex="#5ED3A6">#5ED3A6</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#D9C2FF">suave</span><span style="background:#A46CFF">alto</span></div>
+        <strong>Som</strong><p>Triângulo deitado</p>
+        <div class="hex"><button type="button" data-hex="#D9C2FF">#D9C2FF</button><button type="button" data-hex="#A46CFF">#A46CFF</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#FFE27A">suave</span><span style="background:#FFC800">alto</span></div>
+        <strong>Luz</strong><p>Sol</p>
+        <div class="hex"><button type="button" data-hex="#FFE27A">#FFE27A</button><button type="button" data-hex="#FFC800">#FFC800</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#FFC2E2">suave</span><span style="background:#FF4FAE">alto</span></div>
+        <strong>Cheiro</strong><p>Flor</p>
+        <div class="hex"><button type="button" data-hex="#FFC2E2">#FFC2E2</button><button type="button" data-hex="#FF4FAE">#FF4FAE</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#FFC59E">suave</span><span style="background:#FF7A1F">alto</span></div>
+        <strong>Lotação</strong><p>Duas bolhas</p>
+        <div class="hex"><button type="button" data-hex="#FFC59E">#FFC59E</button><button type="button" data-hex="#FF7A1F">#FF7A1F</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#C2CCFF">suave</span><span style="background:#5872FF">alto</span></div>
+        <strong>Visual</strong><p>Olho</p>
+        <div class="hex"><button type="button" data-hex="#C2CCFF">#C2CCFF</button><button type="button" data-hex="#5872FF">#5872FF</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#FFAE9E">suave</span><span style="background:#FF5240">alto</span></div>
+        <strong>Temperatura</strong><p>Termômetro</p>
+        <div class="hex"><button type="button" data-hex="#FFAE9E">#FFAE9E</button><button type="button" data-hex="#FF5240">#FF5240</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span class="escuro" style="background:#1A1D1C">suave</span><span class="escuro" style="background:#000000">alto</span></div>
+        <strong>Tinta</strong><p>Texto e rostos</p>
+        <div class="hex"><button type="button" data-hex="#1A1D1C">#1A1D1C</button><button type="button" data-hex="#000000">#000000</button></div>
+      </div>
+      <div class="cor">
+        <div class="par"><span style="background:#F4F4F6">suave</span><span style="background:#FFFFFF">alto</span></div>
+        <strong>Superfície</strong><p>Cartões sobre o branco</p>
+        <div class="hex"><button type="button" data-hex="#F4F4F6">#F4F4F6</button><button type="button" data-hex="#FFFFFF">#FFFFFF</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="tipografia">
+    <header>
+      <span class="rotulo">Tipografia</span>
+      <h2>Atkinson Hyperlegible, grande e apertada</h2>
+      <p class="suave">Uma fonte feita para baixa visão, usada com títulos enormes, peso 800 e letras próximas. Legibilidade de sobra, com presença.</p>
+    </header>
+    <div class="tipo">
+      <div class="linha-t"><span class="rotulo">Display · 800 · −5%</span><div style="font-size: clamp(2.4rem, 7vw, 4.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 0.92">Como é lá?</div></div>
+      <div class="linha-t"><span class="rotulo">Título · 800 · −3,5%</span><div style="font-size: var(--t-xl); font-weight: 800; letter-spacing: -0.035em; line-height: 1">Casa de Cultura Mario Quintana</div></div>
+      <div class="linha-t"><span class="rotulo">Destaque · 700</span><div style="font-size: var(--t-l); font-weight: 700">Melhor horário: dia útil, de manhã</div></div>
+      <div class="linha-t"><span class="rotulo">Texto · 400</span><p>Nos fins de semana tem fila no elevador. A escada fica à direita da entrada e é bem mais calma.</p></div>
+      <div class="linha-t"><span class="rotulo">Letras distintas</span><div style="font-size: 1.9rem; font-weight: 700; letter-spacing: 0.02em">Il1 O0 bd pq</div></div>
+    </div>
+  </section>
+
+  <section class="secao" id="componentes">
+    <header>
+      <span class="rotulo">Componentes</span>
+      <h2>Pílulas, chips e blocos</h2>
+    </header>
+    <div class="componentes">
+      <div class="cartao branco" style="gap:16px">
+        <span class="rotulo">Botões</span>
+        <div><button class="botao" type="button">Contar como é lá <span class="seta" aria-hidden="true">→</span></button></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap"><button class="botao escuro" type="button">Buscar</button><button class="botao claro" type="button">Ver no mapa</button></div>
+      </div>
+      <div class="cartao branco" style="gap:16px">
+        <span class="rotulo">Sou sensível a…</span>
+        <div class="chips">
+          <span class="chip ativo"><svg class="p"><use href="#p-som-calmo"/></svg>Som</span>
+          <span class="chip"><svg class="p"><use href="#p-luz-calmo"/></svg>Luz</span>
+          <span class="chip ativo"><svg class="p"><use href="#p-lotacao-calmo"/></svg>Lotação</span>
+          <span class="chip"><svg class="p"><use href="#p-cheiro-calmo"/></svg>Cheiro</span>
+        </div>
+      </div>
+      <div class="cartao branco" style="gap:16px">
+        <span class="rotulo">Badges de intensidade</span>
+        <div class="chips">
+          <span class="badge" style="background: var(--c-som)"><svg class="p"><use href="#p-som-calmo"/></svg><span>Som<small>baixo</small></span></span>
+          <span class="badge" style="background: var(--c-luz)"><svg class="p"><use href="#p-luz-ok"/></svg><span>Luz<small>média</small></span></span>
+          <span class="badge" style="background: var(--c-lotacao)"><svg class="p"><use href="#p-lotacao-alto"/></svg><span>Lotação<small>alta</small></span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="telas">
+    <header>
+      <span class="rotulo">Na prática</span>
+      <h2>Como fica no celular</h2>
+      <p class="suave">Exemplo com relatos inventados. Troque o contraste no topo da página para ver as duas versões.</p>
+    </header>
+    <div class="telas">
+      <div class="celular" aria-label="Tela inicial">
+        <div class="tela t1">
+          <div class="status"><span>9:41</span><span class="ilha"></span><span>●●</span></div>
+          <div class="conteudo">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:0.9rem; letter-spacing:-0.02em"><svg class="selo" width="26" height="26" aria-hidden="true"><use href="#logo"/></svg>Mapa Sensorial</div>
+            <h4>Como é lá?</h4>
+            <p class="suave">Veja o som, a luz e a lotação antes de sair de casa.</p>
+            <div class="busca">Lugar ou bairro<i aria-hidden="true">→</i></div>
+            <div class="chips">
+              <span class="chip ativo"><svg class="p"><use href="#p-som-calmo"/></svg>Som</span>
+              <span class="chip"><svg class="p"><use href="#p-luz-calmo"/></svg>Luz</span>
+              <span class="chip ativo"><svg class="p"><use href="#p-lotacao-calmo"/></svg>Lotação</span>
+            </div>
+            <div class="chao" aria-hidden="true">
+              <svg class="p" width="150" height="150" style="left:-30px; bottom:-40px; transform: rotate(-8deg)"><use href="#p-bolha-feliz"/></svg>
+              <svg class="p" width="130" height="130" style="left:90px; bottom:-56px; transform: rotate(10deg); --c-geral: var(--verde-suave)"><use href="#p-triangulo-calmo"/></svg>
+              <svg class="p" width="150" height="150" style="right:-36px; bottom:-20px; transform: rotate(14deg)"><use href="#p-octogono-curioso"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="celular" aria-label="Página de um lugar">
+        <div class="tela t2">
+          <div class="status"><span>9:41</span><span class="ilha"></span><span>●●</span></div>
+          <div class="conteudo">
+            <div class="cab"><span class="voltar" aria-hidden="true">←</span><span class="tag">Cultura</span></div>
+            <div><h4>Casa de Cultura Mario Quintana</h4><div class="onde">Rua dos Andradas, 736 · Centro Histórico</div></div>
+            <div class="bento">
+              <div class="bloco" style="background: var(--c-som)"><span class="rot">Som</span><span class="nivel">Baixo</span><svg class="p"><use href="#p-som-calmo"/></svg></div>
+              <div class="bloco" style="background: var(--c-luz)"><span class="rot">Luz</span><span class="nivel">Média</span><svg class="p"><use href="#p-luz-ok"/></svg></div>
+              <div class="bloco" style="background: var(--c-lotacao)"><span class="rot">Lotação</span><span class="nivel">Alta</span><span class="poucos">3 relatos</span><svg class="p"><use href="#p-lotacao-alto"/></svg></div>
+              <div class="bloco" style="background: var(--c-cheiro)"><span class="rot">Cheiro</span><span class="nivel">Baixo</span><svg class="p"><use href="#p-cheiro-calmo"/></svg></div>
+              <div class="bloco largo" style="background: var(--c-verde)"><div><span class="rot">Melhor horário</span><div class="nivel">Dia útil, de manhã</div></div></div>
+            </div>
+            <button class="botao" type="button">Contar como é lá</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="pecas">
+    <header>
+      <span class="rotulo">Comunicação</span>
+      <h2>Composições com os rostos padrão</h2>
+      <p class="suave">Dois jeitos de montar peças. <b>Só verde</b>, quando a marca fala dela mesma: site, avisos, chamadas para relatar. <b>Verde com as outras cores</b>, quando o assunto são as pessoas e a comunidade: cada cor é um jeito diferente de sentir. Troque o contraste no topo para ver as peças nos dois modos.</p>
+    </header>
+    <div class="pecas">
+      <div class="peca larga" aria-label="Banner largo, todo em verde">
+        <p class="chamada">Antes de ir,<br>a gente conta<br>como é lá.</p>
+        <div class="assina"><svg class="selo" aria-hidden="true"><use href="#logo"/></svg><div>Mapa Sensorial<small>como é lá?</small></div></div>
+        <svg class="p" style="left:60%; top:6%; width:24cqw; height:24cqw; transform: rotate(8deg); --c-geral: var(--verde)" aria-hidden="true"><use href="#p-bolha-feliz"/></svg>
+        <svg class="p" style="left:80%; top:-12%; width:20cqw; height:20cqw; transform: rotate(-10deg); --c-geral: var(--verde-suave)" aria-hidden="true"><use href="#p-bloco-calmo"/></svg>
+        <svg class="p" style="left:50%; top:48%; width:19cqw; height:19cqw; transform: rotate(-6deg); --c-geral: var(--verde-texto); --rosto: var(--verde-suave)" aria-hidden="true"><use href="#p-triangulo-curioso"/></svg>
+        <svg class="p" style="left:74%; top:46%; width:24cqw; height:24cqw; transform: rotate(12deg); --c-geral: var(--verde)" aria-hidden="true"><use href="#p-octogono-piscando"/></svg>
+        <svg class="p" style="left:91%; top:58%; width:15cqw; height:15cqw; transform: rotate(-4deg); --c-geral: var(--verde-suave)" aria-hidden="true"><use href="#p-bolha-calmo"/></svg>
+      </div>
+      <p class="legenda-peca">Banner do site · só verde</p>
+      <div class="peca quadrada" aria-label="Post quadrado com cores da diversidade">
+        <p class="chamada">Cada pessoa<br>sente de<br>um jeito.</p>
+        <svg class="p" style="left:-8%; top:62%; width:36cqw; height:36cqw; transform: rotate(-8deg); --c-geral: var(--c-som)" aria-hidden="true"><use href="#p-bolha-feliz"/></svg>
+        <svg class="p" style="left:22%; top:66%; width:30cqw; height:30cqw; transform: rotate(6deg); --c-geral: var(--c-luz)" aria-hidden="true"><use href="#p-triangulo-calmo"/></svg>
+        <svg class="p" style="left:50%; top:60%; width:30cqw; height:30cqw; transform: rotate(-10deg); --c-geral: var(--c-cheiro)" aria-hidden="true"><use href="#p-bloco-curioso"/></svg>
+        <svg class="p" style="left:76%; top:54%; width:32cqw; height:32cqw; transform: rotate(10deg); --c-geral: var(--c-visual)" aria-hidden="true"><use href="#p-octogono-piscando"/></svg>
+        <svg class="p" style="left:78%; top:6%; width:20cqw; height:20cqw; transform: rotate(0deg); --c-geral: var(--c-lotacao)" aria-hidden="true"><use href="#p-bolha-calmo"/></svg>
+        <svg class="p" style="left:62%; top:32%; width:16cqw; height:16cqw; transform: rotate(-12deg); --c-geral: var(--verde)" aria-hidden="true"><use href="#p-triangulo-feliz"/></svg>
+      </div>
+      <div class="peca quadrada" aria-label="Post quadrado em grade com todas as cores">
+        <p class="chamada">Chegou em<br>Porto Alegre.</p>
+        <div class="grade"><svg class="p" style="--c-geral: var(--verde)" aria-hidden="true"><use href="#p-bolha-feliz"/></svg><svg class="p" style="--c-geral: var(--c-som)" aria-hidden="true"><use href="#p-bloco-calmo"/></svg><svg class="p" style="--c-geral: var(--c-luz)" aria-hidden="true"><use href="#p-triangulo-curioso"/></svg><svg class="p" style="--c-geral: var(--c-cheiro)" aria-hidden="true"><use href="#p-octogono-piscando"/></svg><svg class="p" style="--c-geral: var(--c-visual)" aria-hidden="true"><use href="#p-triangulo-calmo"/></svg><div class="selo-cel"><svg class="selo" aria-hidden="true"><use href="#logo"/></svg></div><svg class="p" style="--c-geral: var(--c-lotacao)" aria-hidden="true"><use href="#p-bolha-piscando"/></svg><svg class="p" style="--c-geral: var(--c-temperatura)" aria-hidden="true"><use href="#p-bloco-feliz"/></svg><svg class="p" style="--c-geral: var(--verde-suave)" aria-hidden="true"><use href="#p-octogono-feliz"/></svg><svg class="p" style="--c-geral: var(--c-luz)" aria-hidden="true"><use href="#p-bolha-curioso"/></svg><svg class="p" style="--c-geral: var(--verde)" aria-hidden="true"><use href="#p-bloco-piscando"/></svg><svg class="p" style="--c-geral: var(--c-som)" aria-hidden="true"><use href="#p-triangulo-feliz"/></svg></div>
+      </div>
+      <p class="legenda-peca">Posts quadrados · verde com as cores da diversidade</p>
+      <div class="peca story" aria-label="Story vertical em verde">
+        <div class="assina"><svg class="selo" aria-hidden="true"><use href="#logo"/></svg><div>Mapa Sensorial<small>como é lá?</small></div></div>
+        <p class="chamada">Já foi?<br>Conta como<br>é lá.</p>
+        <span class="pilula">Contar como é lá</span>
+        <svg class="p" style="left:2%; top:52%; width:40cqw; height:40cqw; transform: rotate(-6deg); --c-geral: var(--verde-suave)" aria-hidden="true"><use href="#p-bolha-curioso"/></svg>
+        <svg class="p" style="left:52%; top:50%; width:42cqw; height:42cqw; transform: rotate(4deg); --c-geral: var(--verde)" aria-hidden="true"><use href="#p-triangulo-piscando"/></svg>
+        <svg class="p" style="left:-14%; top:66%; width:64cqw; height:64cqw; transform: rotate(-8deg); --c-geral: var(--verde)" aria-hidden="true"><use href="#p-bloco-feliz"/></svg>
+        <svg class="p" style="left:44%; top:70%; width:56cqw; height:56cqw; transform: rotate(10deg); --c-geral: var(--verde-texto); --rosto: var(--verde-suave)" aria-hidden="true"><use href="#p-octogono-calmo"/></svg>
+      </div>
+      <div class="regras-comp" style="grid-column: span 4; align-content: start">
+        <div class="cartao"><h3>Texto em área limpa</h3><p>Os rostos entram pelas bordas, inclinados até 15°, e nunca passam por cima do texto.</p></div>
+        <div class="cartao"><h3>Tamanhos variados</h3><p>Misture rostos grandes e pequenos, cortados na borda. Três a seis por peça.</p></div>
+        <div class="cartao"><h3>Diversidade só nas formas padrão</h3><p>Nas peças, as cores aparecem em bolha, bloco, triângulo e octógono. As formas de estímulo ficam para quando o assunto é o estímulo.</p></div>
+        <div class="cartao"><h3>Tons de verde</h3><p>Verde, verde suave e verde-profundo com rosto claro. Nada de verde fora desses três.</p></div>
+        <p class="legenda-peca" style="grid-column: 1 / -1; margin-top: 0">Story · só verde</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="composicao">
+    <header>
+      <span class="rotulo">Composição</span>
+      <h2>Como montar uma peça</h2>
+    </header>
+    <div class="composicao">
+      <div class="cartao">
+        <div class="quadro" aria-hidden="true"><span class="titulo-falso">Como<br>é lá?</span><svg class="p" width="120" height="120" style="right:-26px; bottom:-30px; transform: rotate(12deg)"><use href="#p-bolha-feliz"/></svg></div>
+        <div class="texto"><h3>Título grande, personagem cortado</h3><p>O personagem entra pela borda, inclinado, e nunca cobre o texto.</p></div>
+      </div>
+      <div class="cartao">
+        <div class="quadro" aria-hidden="true"><svg class="p" width="100" height="100" style="left:20px; top:24px; transform: rotate(-8deg)"><use href="#p-som-calmo"/></svg><svg class="p" width="100" height="100" style="left:110px; top:30px; transform: rotate(6deg)"><use href="#p-cheiro-ok"/></svg></div>
+        <div class="texto"><h3>No site, até três por tela</h3><p>Nas telas de uso, poucos rostos para não virar ruído. Em telas de conteúdo, um só. Peças de divulgação podem ter mais.</p></div>
+      </div>
+      <div class="cartao">
+        <div class="quadro" aria-hidden="true" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; padding:14px">
+          <div class="bloco" style="background: var(--c-visual); min-height:0"><span class="rot">Visual</span></div>
+          <div class="bloco" style="background: var(--c-temperatura); min-height:0"><span class="rot">Temp.</span></div>
+          <div class="bloco" style="background: var(--c-verde); grid-column: span 2; min-height:0"><span class="rot">Melhor horário</span></div>
+        </div>
+        <div class="texto"><h3>Blocos em grade</h3><p>Informação em blocos coloridos de cantos bem redondos, como uma marmita: cada coisa no seu lugar.</p></div>
+      </div>
+      <div class="cartao">
+        <div class="quadro" aria-hidden="true" style="display:grid; place-items:center"><button class="botao escuro" type="button" tabindex="-1">Contar como é lá</button></div>
+        <div class="texto"><h3>Muito branco em volta</h3><p>Fundo sempre branco e espaço de sobra. A cor fica nos blocos e personagens.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="tom">
+    <header>
+      <span class="rotulo">Tom de voz</span>
+      <h2>Como quem conta para um amigo</h2>
+      <p class="suave">Direto, próximo e sem rodeios. Fala do lugar, nunca da condição de quem relata. "Pessoas autistas", não "portadores".</p>
+    </header>
+    <div class="tom">
+      <div class="cartao"><span class="antes">Este local apresenta elevado nível de ruído.</span><span class="depois">Aqui costuma ter som alto.</span></div>
+      <div class="cartao"><span class="antes">Seja o primeiro a avaliar!</span><span class="depois">Ninguém contou como é aqui ainda. Você já foi?</span></div>
+      <div class="cartao"><span class="antes">Campo obrigatório.</span><span class="depois">Falta dizer quando você foi.</span></div>
+      <div class="cartao"><span class="antes">Avaliação enviada com sucesso!</span><span class="depois">Pronto, seu relato já aparece no lugar.</span></div>
+    </div>
+  </section>
+
+  <section class="secao" id="sensorial">
+    <header>
+      <span class="rotulo">A marca também é sensorial</span>
+      <h2>O que a marca nunca faz</h2>
+    </header>
+    <ul class="sensoriais">
+      <li><b>Nada se mexe sozinho</b><span>Personagens, selo e telas ficam parados. Sem animação nem carrossel automático.</span></li>
+      <li><b>Sem som</b><span>Nenhum material toca áudio sem a pessoa pedir.</span></li>
+      <li><b>Cor com limite</b><span>No site, até três cores juntas na mesma área. Em peças de divulgação, mais cores, sempre sobre muito branco e longe do texto.</span></li>
+      <li><b>Contraste à escolha</b><span>Todo material digital funciona no modo suave e no alto contraste.</span></li>
+      <li><b>Expressões claras</b><span>Quatro caras nos rostos padrão e três nos estímulos, sempre as mesmas. Nada de emoção ambígua.</span></li>
+      <li><b>Mesmo lugar, mesma coisa</b><span>Verde é a marca, cada cor é um estímulo. Formato, cor e cara nunca mudam de significado.</span></li>
+    </ul>
+  </section>
+
+  <footer class="rodape">
+    <span>Mapa Sensorial · como é lá? · Porto Alegre</span>
+    <span>Rascunho, para decidir com a comunidade</span>
+  </footer>
+</div>
+
+<div class="copiado" id="copiado" role="status" hidden>Copiado</div>
+
+<script>
+// Contraste da página: suave (padrão) ou alto. Lembra a escolha neste navegador.
+const raiz = document.documentElement;
+const btSuave = document.getElementById("bt-suave"), btAlto = document.getElementById("bt-alto");
+function definir(modo) {
+  raiz.setAttribute("data-contraste", modo);
+  btSuave.setAttribute("aria-pressed", modo === "suave");
+  btAlto.setAttribute("aria-pressed", modo === "alto");
+  try { localStorage.setItem("contraste", modo); } catch (e) {}
+}
+let inicial = "suave";
+try { inicial = localStorage.getItem("contraste") || (matchMedia("(prefers-contrast: more)").matches ? "alto" : "suave"); } catch (e) {}
+definir(inicial);
+btSuave.addEventListener("click", () => definir("suave"));
+btAlto.addEventListener("click", () => definir("alto"));
+
+const aviso = document.getElementById("copiado");
+let espera;
+document.getElementById("lista-cores").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-hex]");
+  if (!b) return;
+  const mostrar = (t) => { aviso.textContent = t; aviso.hidden = false; clearTimeout(espera); espera = setTimeout(() => { aviso.hidden = true; }, 1600); };
+  navigator.clipboard.writeText(b.dataset.hex).then(
+    () => mostrar(`${b.dataset.hex} copiado`),
+    () => { const r = document.createRange(); r.selectNodeContents(b); const s = getSelection(); s.removeAllRanges(); s.addRange(r); mostrar("Selecionado. Use Ctrl+C para copiar."); }
+  );
+});
+</script>

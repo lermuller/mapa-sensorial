@@ -1,0 +1,558 @@
+@import "tailwindcss";
+
+/*
+  Identidade visual: docs/identidade/IDENTIDADE.md.
+  Princípio 2 da SPEC: o próprio site é sensorialmente amigável. Sem animações nem transições,
+  texto sempre AA (4,5:1).
+
+  Dois eixos de aparência, no <html> (gravados em cookie, ver src/lib/aparencia.ts):
+  - data-contraste="suave|alto": sem escolha, segue prefers-contrast do aparelho.
+  - data-tema="claro|escuro": sem escolha, segue prefers-color-scheme.
+  A marca foi desenhada sobre branco; o modo escuro é uma adaptação dela.
+*/
+
+/* ---------- Claro · suave (padrão) ---------- */
+:root {
+  color-scheme: light;
+  --fundo: #ffffff;
+  --superficie: #f4f4f6;
+  --texto: #1a1d1c;
+  --texto-suave: #5f6664;
+  --borda: #e6e6ea;
+  --borda-campo: #858c8a;
+  --linha: 0px;
+  --contorno: transparent;
+  --rosto: #1a1d1c;
+  /* Tinta sobre as cores da marca e dos estímulos: sempre escura */
+  --tinta: #1a1d1c;
+
+  --verde: #5ed3a6;
+  --verde-suave: #c9f0de;
+  --verde-texto: #0f5c46;
+  --simbolo: #5ed3a6;
+  /* Verde da marca escurecido para texto: passa no AA sobre branco (4,9:1) */
+  --verde-titulo: #23805c;
+  --link: #0f5c46;
+  --foco: #0f5c46;
+
+  /* Nomes usados nos componentes */
+  --destaque: #5ed3a6; /* botão principal */
+  --destaque-texto: #000000;
+  --destaque-suave: #c9f0de;
+  --botao-2: #1a1d1c;
+  --botao-2-texto: #ffffff;
+
+  --c-som: #d9c2ff;
+  --c-luz: #ffe27a;
+  --c-cheiro: #ffc2e2;
+  --c-lotacao: #ffc59e;
+  --c-visual: #c2ccff;
+  --c-temperatura: #ffae9e;
+  --c-geral: #5ed3a6;
+
+  --erro-fundo: #ffe6e1;
+  --erro-texto: #8a2414;
+  --sombra: 0 1px 2px rgb(20 30 25 / 0.06), 0 6px 20px rgb(20 30 25 / 0.08);
+  --filtro-mapa: none;
+}
+
+/* ---------- Claro · alto contraste ---------- */
+:root[data-contraste="alto"] {
+  --fundo: #ffffff;
+  --superficie: #ffffff;
+  --texto: #000000;
+  --texto-suave: #2b302e;
+  --borda: #000000;
+  --borda-campo: var(--borda);
+  --linha: 2.5px;
+  --contorno: #000000;
+  --rosto: #000000;
+  --tinta: #000000;
+
+  --verde-suave: #5ed3a6;
+  --verde-texto: #000000;
+  --simbolo: #000000;
+  --verde-titulo: #000000;
+  --link: #000000;
+  --foco: #000000;
+
+  --destaque: #000000;
+  --destaque-texto: #ffffff;
+  --destaque-suave: #5ed3a6;
+  --botao-2: #ffffff;
+  --botao-2-texto: #000000;
+
+  --c-som: #a46cff;
+  --c-luz: #ffc800;
+  --c-cheiro: #ff4fae;
+  --c-lotacao: #ff7a1f;
+  --c-visual: #5872ff;
+  --c-temperatura: #ff5240;
+
+  --erro-fundo: #ffffff;
+  --erro-texto: #000000;
+  --sombra: none;
+  --filtro-mapa: contrast(1.15);
+}
+@media (prefers-contrast: more) {
+  :root:not([data-contraste]) {
+    --fundo: #ffffff;
+    --superficie: #ffffff;
+    --texto: #000000;
+    --texto-suave: #2b302e;
+    --borda: #000000;
+    --borda-campo: var(--borda);
+    --linha: 2.5px;
+    --contorno: #000000;
+    --rosto: #000000;
+    --tinta: #000000;
+    --verde-suave: #5ed3a6;
+    --verde-texto: #000000;
+    --simbolo: #000000;
+    --verde-titulo: #000000;
+    --link: #000000;
+    --foco: #000000;
+    --destaque: #000000;
+    --destaque-texto: #ffffff;
+    --destaque-suave: #5ed3a6;
+    --botao-2: #ffffff;
+    --botao-2-texto: #000000;
+    --c-som: #a46cff;
+    --c-luz: #ffc800;
+    --c-cheiro: #ff4fae;
+    --c-lotacao: #ff7a1f;
+    --c-visual: #5872ff;
+    --c-temperatura: #ff5240;
+    --erro-fundo: #ffffff;
+    --erro-texto: #000000;
+    --sombra: none;
+    --filtro-mapa: contrast(1.15);
+  }
+}
+
+/* ---------- Escuro · suave (adaptação da marca) ---------- */
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+  --fundo: #121514;
+  --superficie: #1c201f;
+  --texto: #eceeed;
+  --texto-suave: #a7aeab;
+  --borda: #2f3533;
+  --borda-campo: #6b7370;
+  --linha: 0px;
+  --contorno: transparent;
+  --rosto: #1a1d1c;
+  --tinta: #1a1d1c;
+
+  --verde-suave: #1d3d31;
+  --verde-texto: #7fe2bb;
+  --simbolo: #5ed3a6;
+  --verde-titulo: #5ed3a6;
+  --link: #7fe2bb;
+  --foco: #7fe2bb;
+
+  --destaque: #5ed3a6;
+  --destaque-texto: #000000;
+  --destaque-suave: #1d3d31;
+  --botao-2: #eceeed;
+  --botao-2-texto: #121514;
+
+  --erro-fundo: #3d2420;
+  --erro-texto: #ffc4b8;
+  --sombra: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.35);
+  /* Mapa claro invertido: fica escuro mantendo os tons */
+  --filtro-mapa: invert(0.9) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema]) {
+    color-scheme: dark;
+    --fundo: #121514;
+    --superficie: #1c201f;
+    --texto: #eceeed;
+    --texto-suave: #a7aeab;
+    --borda: #2f3533;
+    --borda-campo: #6b7370;
+    --linha: 0px;
+    --contorno: transparent;
+    --rosto: #1a1d1c;
+    --tinta: #1a1d1c;
+    --verde-suave: #1d3d31;
+    --verde-texto: #7fe2bb;
+    --simbolo: #5ed3a6;
+    --verde-titulo: #5ed3a6;
+    --link: #7fe2bb;
+    --foco: #7fe2bb;
+    --destaque: #5ed3a6;
+    --destaque-texto: #000000;
+    --destaque-suave: #1d3d31;
+    --botao-2: #eceeed;
+    --botao-2-texto: #121514;
+    --erro-fundo: #3d2420;
+    --erro-texto: #ffc4b8;
+    --sombra: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.35);
+    --filtro-mapa: invert(0.9) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+  }
+}
+
+/* ---------- Escuro · alto contraste ---------- */
+:root[data-tema="escuro"][data-contraste="alto"] {
+  color-scheme: dark;
+  --fundo: #000000;
+  --superficie: #000000;
+  --texto: #ffffff;
+  --texto-suave: #e2e2e2;
+  --borda: #ffffff;
+  --borda-campo: var(--borda);
+  --linha: 2.5px;
+  --contorno: #000000;
+  --rosto: #000000;
+  --tinta: #000000;
+  --verde-suave: #5ed3a6;
+  --verde-texto: #ffffff;
+  --simbolo: #ffffff;
+  --verde-titulo: #ffffff;
+  --link: #ffffff;
+  --foco: #ffffff;
+  --destaque: #ffffff;
+  --destaque-texto: #000000;
+  --destaque-suave: #0f5c46;
+  --botao-2: #000000;
+  --botao-2-texto: #ffffff;
+  --c-som: #a46cff;
+  --c-luz: #ffc800;
+  --c-cheiro: #ff4fae;
+  --c-lotacao: #ff7a1f;
+  --c-visual: #5872ff;
+  --c-temperatura: #ff5240;
+  --erro-fundo: #000000;
+  --erro-texto: #ffffff;
+  --sombra: none;
+  --filtro-mapa: invert(1) hue-rotate(180deg) contrast(1.2);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema])[data-contraste="alto"] {
+    color-scheme: dark;
+    --fundo: #000000;
+    --superficie: #000000;
+    --texto: #ffffff;
+    --texto-suave: #e2e2e2;
+    --borda: #ffffff;
+    --borda-campo: var(--borda);
+    --linha: 2.5px;
+    --contorno: #000000;
+    --rosto: #000000;
+    --tinta: #000000;
+    --verde-suave: #5ed3a6;
+    --verde-texto: #ffffff;
+    --simbolo: #ffffff;
+    --verde-titulo: #ffffff;
+    --link: #ffffff;
+    --foco: #ffffff;
+    --destaque: #ffffff;
+    --destaque-texto: #000000;
+    --destaque-suave: #0f5c46;
+    --botao-2: #000000;
+    --botao-2-texto: #ffffff;
+    --c-som: #a46cff;
+    --c-luz: #ffc800;
+    --c-cheiro: #ff4fae;
+    --c-lotacao: #ff7a1f;
+    --c-visual: #5872ff;
+    --c-temperatura: #ff5240;
+    --erro-fundo: #000000;
+    --erro-texto: #ffffff;
+    --sombra: none;
+    --filtro-mapa: invert(1) hue-rotate(180deg) contrast(1.2);
+  }
+}
+@media (prefers-contrast: more) {
+  :root[data-tema="escuro"]:not([data-contraste]) {
+    --fundo: #000000;
+    --superficie: #000000;
+    --texto: #ffffff;
+    --texto-suave: #e2e2e2;
+    --borda: #ffffff;
+    --borda-campo: var(--borda);
+    --linha: 2.5px;
+    --contorno: #000000;
+    --rosto: #000000;
+    --tinta: #000000;
+    --verde-suave: #5ed3a6;
+    --verde-texto: #ffffff;
+    --simbolo: #ffffff;
+    --verde-titulo: #ffffff;
+    --link: #ffffff;
+    --foco: #ffffff;
+    --destaque: #ffffff;
+    --destaque-texto: #000000;
+    --destaque-suave: #0f5c46;
+    --botao-2: #000000;
+    --botao-2-texto: #ffffff;
+    --c-som: #a46cff;
+    --c-luz: #ffc800;
+    --c-cheiro: #ff4fae;
+    --c-lotacao: #ff7a1f;
+    --c-visual: #5872ff;
+    --c-temperatura: #ff5240;
+    --erro-fundo: #000000;
+    --erro-texto: #ffffff;
+    --sombra: none;
+    --filtro-mapa: invert(1) hue-rotate(180deg) contrast(1.2);
+  }
+}
+@media (prefers-color-scheme: dark) and (prefers-contrast: more) {
+  :root:not([data-tema]):not([data-contraste]) {
+    --fundo: #000000;
+    --superficie: #000000;
+    --texto: #ffffff;
+    --texto-suave: #e2e2e2;
+    --borda: #ffffff;
+    --borda-campo: var(--borda);
+    --linha: 2.5px;
+    --contorno: #000000;
+    --rosto: #000000;
+    --tinta: #000000;
+    --verde-suave: #5ed3a6;
+    --verde-texto: #ffffff;
+    --simbolo: #ffffff;
+    --verde-titulo: #ffffff;
+    --link: #ffffff;
+    --foco: #ffffff;
+    --destaque: #ffffff;
+    --destaque-texto: #000000;
+    --destaque-suave: #0f5c46;
+    --botao-2: #000000;
+    --botao-2-texto: #ffffff;
+    --c-som: #a46cff;
+    --c-luz: #ffc800;
+    --c-cheiro: #ff4fae;
+    --c-lotacao: #ff7a1f;
+    --c-visual: #5872ff;
+    --c-temperatura: #ff5240;
+    --erro-fundo: #000000;
+    --erro-texto: #ffffff;
+    --sombra: none;
+    --filtro-mapa: invert(1) hue-rotate(180deg) contrast(1.2);
+  }
+}
+
+/* O mapa (tiles claros do OpenFreeMap) acompanha o tema por filtro. */
+.maplibregl-canvas {
+  filter: var(--filtro-mapa);
+}
+
+/* Na página inicial, o zoom e o crédito do mapa sobem para dar lugar ao botão de aparência. */
+.tela-mapa .maplibregl-ctrl-bottom-right {
+  bottom: 3.5rem;
+}
+
+@theme inline {
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-borda: var(--borda);
+  --color-tinta: var(--tinta);
+  --color-destaque: var(--destaque);
+  --color-destaque-texto: var(--destaque-texto);
+  --color-destaque-suave: var(--destaque-suave);
+  --color-verde: var(--verde);
+  --color-verde-texto: var(--verde-texto);
+  --color-simbolo: var(--simbolo);
+  --color-verde-titulo: var(--verde-titulo);
+  --color-link: var(--link);
+  --color-c-som: var(--c-som);
+  --color-c-luz: var(--c-luz);
+  --color-c-cheiro: var(--c-cheiro);
+  --color-c-lotacao: var(--c-lotacao);
+  --color-c-visual: var(--c-visual);
+  --color-c-temperatura: var(--c-temperatura);
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --shadow-suave: var(--sombra);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  html {
+    font-size: 100%; /* 16px */
+  }
+
+  body {
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--foco);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Títulos em peso 800 com letras próximas */
+  h1,
+  h2,
+  h3 {
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+}
+
+/* Componentes simples reutilizados nas páginas */
+@layer components {
+  /* Título grande da marca */
+  .display {
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 0.92;
+  }
+
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.5rem;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.9375rem;
+    border-radius: 9999px;
+    border: var(--linha) solid var(--borda);
+    background: var(--destaque);
+    color: var(--destaque-texto);
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .botao:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  /* Secundário: contorno de 2px na cor do texto */
+  .botao-secundario {
+    background: var(--fundo);
+    color: var(--texto);
+    border: 2px solid var(--texto);
+  }
+  /* Escuro (secundário forte) */
+  .botao-escuro {
+    background: var(--botao-2);
+    color: var(--botao-2-texto);
+  }
+  /* Terciário: só texto com ícone, para ações de apoio */
+  .botao-terciario {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    color: var(--link);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .botao-terciario:hover {
+    background: var(--destaque-suave);
+  }
+  .botao-perigo {
+    background: var(--fundo);
+    color: var(--erro-texto);
+    border: 2px solid var(--erro-texto);
+  }
+  .campo {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.85rem;
+    border: max(1.5px, var(--linha)) solid var(--borda-campo);
+    border-radius: 0.875rem;
+    background: var(--fundo);
+    color: var(--texto);
+  }
+  .campo-pilula {
+    border-radius: 9999px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.875rem;
+    border-radius: 9999px;
+    border: max(1px, var(--linha)) solid var(--borda);
+    background: var(--fundo);
+    color: var(--texto);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  /* Chip com personagem à esquerda */
+  .chip-personagem {
+    padding-left: 0.3rem;
+  }
+  .chip[aria-pressed="true"],
+  .chip:has(input:checked) {
+    background: var(--destaque-suave);
+    color: var(--texto);
+  }
+  /* Link solto (fora de frases): sem sublinhado, com seta. Links dentro de frases
+     continuam sublinhados para não depender só da cor. */
+  .link-seta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .link-seta:hover {
+    text-decoration: underline;
+  }
+  .rotulo {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .ajuda {
+    color: var(--texto-suave);
+    font-size: 0.875rem;
+  }
+  .cartao {
+    background: var(--superficie);
+    border: var(--linha) solid var(--borda);
+    border-radius: 1.5rem;
+    padding: 1.1rem;
+  }
+  .erro {
+    background: var(--erro-fundo);
+    color: var(--erro-texto);
+    border: var(--linha) solid var(--erro-texto);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  .sucesso {
+    background: var(--destaque-suave);
+    color: var(--texto);
+    border: var(--linha) solid var(--borda);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+  }
+}
