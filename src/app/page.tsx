@@ -197,6 +197,8 @@ export default async function Inicio(props: PageProps<"/">) {
         </label>
         <input
           id="busca"
+          // key: o campo acompanha a busca da URL (ex.: esvazia ao limpar a busca)
+          key={params.termo}
           name="q"
           type="search"
           defaultValue={params.termo}

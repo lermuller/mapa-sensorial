@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LinkSeta } from "@/components/LinkSeta";
+import { LinkSeta, VoltarAoMapa } from "@/components/LinkSeta";
 import { sair } from "@/lib/acoes/conta";
 import { ehModeradora } from "@/lib/acoes/moderacao";
 import { AVATAR_PADRAO } from "@/lib/avatar";
@@ -38,6 +38,7 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
 
   return (
     <div className="space-y-6">
+      <VoltarAoMapa />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <CabecalhoConta

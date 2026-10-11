@@ -54,3 +54,12 @@ export function LinkSeta({
     </Link>
   );
 }
+
+/** Link de volta para a página inicial, no topo das páginas internas. */
+export function VoltarAoMapa() {
+  return (
+    <LinkSeta href="/" voltar className="text-sm">
+      Voltar para o mapa
+    </LinkSeta>
+  );
+}

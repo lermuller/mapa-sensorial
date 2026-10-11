@@ -124,6 +124,22 @@ export function BuscaMapa({
     const qs = u.toString();
     return qs ? `${pathname}?${qs}` : pathname;
   }
+  /** Mesma página sem o texto buscado (mantém os filtros). */
+  function hrefSemBusca() {
+    const u = new URLSearchParams(searchParams.toString());
+    for (const k of ["q", "lugar", "painel"]) u.delete(k);
+    const qs = u.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  }
+  // Depois de limpar a busca, o foco vai para o campo, pronto para uma nova busca.
+  const limpandoBusca = useRef(false);
+  useEffect(() => {
+    if (limpandoBusca.current && termoBusca === "") {
+      limpandoBusca.current = false;
+      document.getElementById("busca")?.focus();
+    }
+  }, [termoBusca]);
+
   const abrirLugarRef = useRef<(id: string) => void>(() => {});
   useEffect(() => {
     abrirLugarRef.current = (id: string) => router.push(hrefCom(id), { scroll: false });
@@ -486,16 +502,36 @@ export function BuscaMapa({
           }`}
         >
           <div className="flex items-center justify-between gap-2 border-b border-borda px-4 py-2.5">
-            <h2 ref={tituloLista} tabIndex={-1} className="text-base font-bold leading-normal tracking-normal outline-none">
+            <h2
+              ref={tituloLista}
+              tabIndex={-1}
+              className="min-w-0 text-base font-bold leading-normal tracking-normal outline-none"
+            >
               {resumo}
             </h2>
-            <button
-              type="button"
-              onClick={() => setVerLista(false)}
-              className="chip min-h-10 lg:hidden"
-            >
-              Ver mapa
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVerLista(false)}
+                className="chip min-h-10 lg:hidden"
+              >
+                Ver mapa
+              </button>
+              {termoBusca && (
+                <Link
+                  href={hrefSemBusca()}
+                  scroll={false}
+                  onClick={() => (limpandoBusca.current = true)}
+                  aria-label="Limpar busca"
+                  title="Limpar busca"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-borda bg-fundo text-texto"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </Link>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-2.5">
             {resultados.length === 0 ? (

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LinkSeta } from "@/components/LinkSeta";
+import { VoltarAoMapa } from "@/components/LinkSeta";
 import { env } from "@/lib/env";
 import { VIGENCIA } from "@/lib/legal";
 
@@ -19,9 +19,7 @@ export function DocumentoLegal({
   return (
     <article className="mx-auto max-w-2xl space-y-10">
       <header className="space-y-4">
-        <LinkSeta href="/" voltar className="text-sm">
-          Voltar para o mapa
-        </LinkSeta>
+        <VoltarAoMapa />
         <div className="space-y-2">
           <h1 className="display text-4xl">{titulo}</h1>
           <p className="text-sm text-texto-suave">Em vigor desde {VIGENCIA}.</p>

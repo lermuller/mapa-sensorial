@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { LinkSeta } from "@/components/LinkSeta";
+import { LinkSeta, VoltarAoMapa } from "@/components/LinkSeta";
 import { Personagem, ROSTO_DO_NIVEL, type FormaPadrao, type Rosto } from "@/components/Personagem";
 import { env } from "@/lib/env";
 import { ESTIMULOS, INFO_ESTIMULO, NIVEIS, ROTULO_NIVEL } from "@/lib/estimulos";
@@ -51,9 +51,7 @@ export default function PaginaSobre() {
   return (
     <div className="mx-auto max-w-2xl space-y-12">
       <header className="space-y-4">
-        <LinkSeta href="/" voltar className="text-sm">
-          Voltar para o mapa
-        </LinkSeta>
+        <VoltarAoMapa />
         <div className="space-y-2">
           <h1 className="display text-4xl">
             Sobre o Mapa Sensorial, <span className="text-verde-titulo">como é lá?</span>

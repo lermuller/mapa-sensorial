@@ -4,6 +4,7 @@ import { obterPerfil } from "@/lib/dados";
 import { primeiro } from "@/lib/parametros";
 import { usuarioAtualId } from "@/lib/supabase/server";
 import { FormPerfil } from "./FormPerfil";
+import { VoltarAoMapa } from "@/components/LinkSeta";
 
 export const metadata: Metadata = { title: "Meu perfil sensorial" };
 
@@ -14,6 +15,7 @@ export default async function PaginaPerfil(props: PageProps<"/perfil">) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
+      <VoltarAoMapa />
       <h1 className="text-2xl">Meu perfil sensorial</h1>
       <p>
         Marque os estímulos que mais afetam você. Quando o perfil está ativo na busca, os lugares

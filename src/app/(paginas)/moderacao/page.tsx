@@ -6,6 +6,7 @@ import type { RelatoLinha } from "@/lib/dados";
 import { ESTIMULOS, NIVEIS } from "@/lib/estimulos";
 import { formatarData } from "@/lib/formato";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { VoltarAoMapa } from "@/components/LinkSeta";
 
 export const metadata: Metadata = { title: "Moderação" };
 
@@ -40,6 +41,7 @@ export default async function PaginaModeracao() {
 
   return (
     <div className="space-y-6">
+      <VoltarAoMapa />
       <header className="space-y-1">
         <h1 className="display text-3xl">Moderação</h1>
         <p className="text-sm text-texto-suave">
