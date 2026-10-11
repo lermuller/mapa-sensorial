@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MiniMapa } from "@/components/mapa/MiniMapa";
 import { calcularBadges } from "@/lib/calculo";
-import { obterLugar, obterPerfil, paraCalculo, relatosDoLugar } from "@/lib/dados";
+import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
+import { caminhoLugar, metadadosDoLugar, textoCompartilhar } from "@/lib/compartilhar";
+import { obterDetalheLugar, obterLugar, obterPerfil, paraCalculo, relatosDoLugar } from "@/lib/dados";
 import { ROTULO_CATEGORIA } from "@/lib/estimulos";
 import { formatarData } from "@/lib/formato";
 import { usuarioAtualId } from "@/lib/supabase/server";
@@ -14,8 +16,8 @@ import { LinkSeta } from "@/components/LinkSeta";
 
 export async function generateMetadata(props: PageProps<"/lugar/[id]">): Promise<Metadata> {
   const { id } = await props.params;
-  const lugar = await obterLugar(id);
-  return { title: lugar?.nome ?? "Lugar não encontrado" };
+  const detalhe = await obterDetalheLugar(id);
+  return detalhe ? metadadosDoLugar(detalhe) : { title: "Lugar não encontrado" };
 }
 
 export default async function PaginaLugar(props: PageProps<"/lugar/[id]">) {
@@ -49,9 +51,17 @@ export default async function PaginaLugar(props: PageProps<"/lugar/[id]">) {
           {lugar.endereco && ` · ${lugar.endereco}`}
           {lugar.bairro && ` · ${lugar.bairro}`}
         </p>
-        <Link href={`/lugar/${lugar.id}/relatar`} className="botao">
-          Contar como é lá
-        </Link>
+        {/* Ação principal à direita */}
+        <div className="flex flex-wrap justify-end gap-2">
+          <BotaoCompartilhar
+            caminho={caminhoLugar(lugar.id)}
+            titulo={`${lugar.nome}: como é lá?`}
+            texto={textoCompartilhar({ lugar, badges })}
+          />
+          <Link href={`/lugar/${lugar.id}/relatar`} className="botao">
+            Contar como é lá
+          </Link>
+        </div>
       </header>
 
       {enviado === "1" && (

@@ -78,6 +78,9 @@ export type FiltrosBusca = {
   faixa: Partial<Faixa>;
   /** Retângulo visível do mapa. Sem ele, busca na cidade toda. */
   area: Area | null;
+  /** Busca por tipo ("cafés"): subtipos aceitos e a palavra que também vale no nome. */
+  subtipos?: string[];
+  palavra?: string;
 };
 
 export type Area = { sul: number; oeste: number; norte: number; leste: number };
@@ -97,6 +100,8 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
     categorias: filtros.categorias.length ? filtros.categorias : null,
     ...(filtros.area ?? {}),
     limite: LIMITE_BUSCA,
+    subtipos: filtros.subtipos?.length ? filtros.subtipos : null,
+    palavra: filtros.palavra || null,
   });
   if (error) throw error;
   if (!lugares || lugares.length === 0) return [];

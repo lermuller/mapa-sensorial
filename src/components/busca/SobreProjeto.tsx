@@ -4,7 +4,7 @@ import { ESTIMULOS, INFO_ESTIMULO } from "@/lib/estimulos";
 const PASSOS: { titulo: string; texto: string; forma: FormaPadrao; rosto: Rosto }[] = [
   {
     titulo: "Busque um lugar",
-    texto: "Pelo nome, endereço ou bairro, ou explorando o mapa.",
+    texto: "Pelo nome, bairro ou tipo, como “cafés”, ou explorando o mapa.",
     forma: "bolha",
     rosto: "curioso",
   },

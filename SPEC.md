@@ -36,7 +36,7 @@ Lista fixa de estímulos usada nos relatos, nos badges e nos filtros:
 
 ### 1. Busca
 
-- Busca por **nome do lugar** ou **endereço/bairro**.
+- Busca por **nome do lugar**, **endereço/bairro** ou **tipo de lugar** ("cafés", "museus", "posto de saúde"; ver `src/lib/busca.ts`). A palavra de tipo vira filtro pelo subtipo do OpenStreetMap e o resto continua como texto ("café no Bom Fim"). Tolera erros de digitação ("brisa forneria"). Sem resultado por tipo, busca o texto inteiro.
 - Resultado em **mapa + lista**, alternáveis. No celular, a lista é a visão padrão.
 
 ### 2. Filtros
@@ -149,7 +149,7 @@ O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consenti
 - [ ] Domínio próprio verificado no Resend (SPF/DKIM) e remetente do Supabase trocado para ele
 - [ ] Aumentar o limite de e-mails em *Authentication › Rate Limits* (padrão ~30/hora)
 - [ ] Publicar o site (Vercel) e adicionar `https://DOMINIO/auth/callback` nas Redirect URLs do Supabase; trocar a Site URL e `NEXT_PUBLIC_SITE_URL`
-- [ ] Apagar os relatos de demonstração: `npm run dados-demo -- --remover`
+- [x] Apagar os relatos de demonstração: `npm run dados-demo -- --remover` (feito em 11/10/2026)
 - [ ] Revisão jurídica da política de privacidade e dos termos; confirmar o nome legal do responsável em `src/lib/legal.ts` e definir `NEXT_PUBLIC_EMAIL_CONTATO` (canal de privacidade)
 - [ ] Definir quem modera e adicionar na tabela `moderadores`
 - [ ] Revisar com a comunidade a lista de palavras do filtro (`src/lib/moderacao.ts`)

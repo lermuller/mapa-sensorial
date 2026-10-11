@@ -41,6 +41,12 @@ export function rotuloNivel(e: Estimulo, n: Nivel): string {
   return n === "baixo" ? "Baixa" : "Alta";
 }
 
+/** Nível dentro de uma frase, com concordância completa: "temperatura média". */
+export function nivelNaFrase(e: Estimulo, n: Nivel): string {
+  if (FEMININOS.has(e) && n === "medio") return "média";
+  return rotuloNivel(e, n).toLowerCase();
+}
+
 export const INFO_ESTIMULO: Record<
   Estimulo,
   { nome: string; cobre: string; badge: Record<Nivel, string> }

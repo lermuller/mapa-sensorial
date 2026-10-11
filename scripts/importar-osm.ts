@@ -79,6 +79,52 @@ function categoriaDe(tags: Record<string, string>): Categoria | null {
   return null;
 }
 
+/**
+ * Subtipo do lugar, a partir das mesmas tags: permite buscar "cafés" sem misturar com
+ * restaurantes. Os valores são os usados em src/lib/busca.ts.
+ */
+function subtipoDe(tags: Record<string, string>, categoria: Categoria): string | null {
+  const t = (k: string) => tags[k] ?? "";
+  switch (categoria) {
+    case "shopping":
+      return "shopping";
+    case "supermercado":
+      return "supermercado";
+    case "restaurante_cafe":
+      return (
+        { restaurant: "restaurante", cafe: "cafe", fast_food: "lanchonete", food_court: "praca_alimentacao" }[
+          t("amenity")
+        ] ?? null
+      );
+    case "parque_praca":
+      return t("leisure") === "park" ? "parque" : "praca";
+    case "saude":
+      if (t("amenity") === "hospital" || t("healthcare") === "hospital") return "hospital";
+      if (t("healthcare") === "laboratory") return "laboratorio";
+      return "clinica";
+    case "cultura":
+      if (t("tourism") === "museum") return "museu";
+      return { cinema: "cinema", theatre: "teatro", arts_centre: "centro_cultural" }[t("amenity")] ?? null;
+    case "transporte":
+      if (t("aeroway") === "aerodrome") return "aeroporto";
+      if (t("amenity") === "bus_station") return "rodoviaria";
+      return "estacao";
+    case "servico_publico":
+      if (t("office") === "government") return "orgao_publico";
+      return (
+        {
+          townhall: "prefeitura",
+          courthouse: "tribunal",
+          police: "policia",
+          post_office: "correios",
+          social_facility: "assistencia_social",
+        }[t("amenity")] ?? null
+      );
+    default:
+      return null;
+  }
+}
+
 function endereco(tags: Record<string, string>): string | null {
   const rua = tags["addr:street"];
   if (!rua) return null;
@@ -127,6 +173,7 @@ function paraLugar(e: ElementoOsm) {
   return {
     nome: tags.name.slice(0, 200),
     categoria,
+    subtipo: subtipoDe(tags, categoria),
     endereco: endereco(tags)?.slice(0, 300) ?? null,
     bairro: (tags["addr:suburb"] ?? tags["addr:neighbourhood"])?.slice(0, 100) ?? null,
     lat,

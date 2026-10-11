@@ -28,6 +28,8 @@ type Props = {
   conteudoLugar: ReactNode;
   /** A busca está usando o perfil sensorial da conta (mantido ao buscar nesta área). */
   usarPerfil: boolean;
+  /** Texto buscado: ao buscar, a lista de resultados abre (no celular ela fica recolhida). */
+  termoBusca: string;
 };
 
 /**
@@ -51,14 +53,18 @@ function telaGrande() {
   return window.matchMedia("(min-width: 1024px)").matches;
 }
 
-/** Espaço livre do mapa, descontando a navbar, a busca e o painel aberto. */
-function margensDoMapa(): PaddingOptions {
+/**
+ * Espaço livre do mapa, descontando a navbar, a busca e o painel aberto. No celular, com a
+ * lista aberta (ela ocupa até 70% da altura), os pontos ficam na parte de cima.
+ */
+function margensDoMapa(listaAberta = false): PaddingOptions {
   if (telaGrande()) return { top: 140, bottom: 60, right: 60, left: 440 };
-  return { top: 130, bottom: 110, right: 40, left: 40 };
+  const alturaLista = listaAberta ? Math.round(window.innerHeight * 0.7) : 0;
+  return { top: 130, bottom: Math.max(110, alturaLista + 24), right: 40, left: 40 };
 }
 
 /** Enquadra os resultados no espaço livre do mapa. */
-function enquadrar(mapa: MapaLibre, resultados: ResultadoBusca[]) {
+function enquadrar(mapa: MapaLibre, resultados: ResultadoBusca[], listaAberta = false) {
   if (resultados.length === 0) return;
   const lats = resultados.map((l) => l.lat);
   const lngs = resultados.map((l) => l.lng);
@@ -67,7 +73,7 @@ function enquadrar(mapa: MapaLibre, resultados: ResultadoBusca[]) {
       [Math.min(...lngs), Math.min(...lats)],
       [Math.max(...lngs), Math.max(...lats)],
     ],
-    { padding: margensDoMapa(), maxZoom: 16, animate: false },
+    { padding: margensDoMapa(listaAberta), maxZoom: 16, animate: false },
   );
 }
 
@@ -82,6 +88,7 @@ export function BuscaMapa({
   detalhe,
   conteudoLugar,
   usarPerfil,
+  termoBusca,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const painel = useRef<HTMLOListElement>(null);
@@ -98,7 +105,13 @@ export function BuscaMapa({
   const selecionado = detalhe?.lugar.id ?? null;
   const [emFoco, setEmFoco] = useState<string | null>(null);
   const [areaMudou, setAreaMudou] = useState(false);
-  const [verLista, setVerLista] = useState(false);
+  const [verLista, setVerLista] = useState(() => termoBusca !== "");
+  // Nova busca por texto: mostra os resultados na lista (ajuste durante a renderização).
+  const [termoAnterior, setTermoAnterior] = useState(termoBusca);
+  if (termoBusca !== termoAnterior) {
+    setTermoAnterior(termoBusca);
+    if (termoBusca) setVerLista(true);
+  }
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -200,10 +213,12 @@ export function BuscaMapa({
     [resultados, area],
   );
   const resultadosRef = useRef(resultados);
+  const verListaRef = useRef(verLista);
   const areaRef = useRef(area);
   const detalheIdRef = useRef<string | null>(detalhe?.lugar.id ?? null);
   useEffect(() => {
     resultadosRef.current = resultados;
+    verListaRef.current = verLista;
     areaRef.current = area;
     detalheIdRef.current = detalhe?.lugar.id ?? null;
   });
@@ -225,7 +240,7 @@ export function BuscaMapa({
         { animate: false, padding: 0 },
       );
     } else {
-      enquadrar(mapa, resultados);
+      enquadrar(mapa, resultados, verListaRef.current);
     }
   }, [pronto, chaveResultados]);
 

@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Form from "next/form";
+import { metadadosDoLugar } from "@/lib/compartilhar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BuscaMapa } from "@/components/busca/BuscaMapa";
@@ -22,7 +24,16 @@ import {
   type Relato,
   type ResultadoBusca,
 } from "@/lib/dados";
+import { interpretarBusca, normalizar } from "@/lib/busca";
 import { areaParaTexto, lerParamsBusca, primeiro } from "@/lib/parametros";
+
+// Com um lugar aberto (?lugar=), o link compartilhado mostra a prévia dele.
+export async function generateMetadata(props: PageProps<"/">): Promise<Metadata> {
+  const lugarId = primeiro((await props.searchParams).lugar);
+  if (!lugarId) return {};
+  const detalhe = await obterDetalheLugar(lugarId).catch(() => null);
+  return detalhe ? metadadosDoLugar(detalhe) : {};
+}
 
 export default async function Inicio(props: PageProps<"/">) {
   const sp = await props.searchParams;
@@ -42,12 +53,43 @@ export default async function Inicio(props: PageProps<"/">) {
   const perfilConta: Estimulo[] | null = usuarioId ? await obterPerfil(usuarioId) : null;
   const perfilEmUso = params.usarPerfil && perfilConta ? perfilConta : [];
   const estimulosBusca = [...new Set([...params.estimulos, ...perfilEmUso])];
+  // "cafeterias", "café no Bom Fim": a palavra de tipo vira filtro, o resto continua como texto.
+  // Os tipos marcados nos filtros têm prioridade. Se o texto inteiro for o nome de um lugar
+  // ("Mark Hamburgueria", "Shopping Iguatemi"), o nome ganha: aparecem todos com esse nome.
+  // Sem resultado por tipo, também busca o texto inteiro (ex.: "Mercado Público").
+  const { termo: restoDaBusca, tipo } = interpretarBusca(params.termo);
+  const tipoEmUso = tipo && (params.categorias.length === 0 || params.categorias.includes(tipo.categoria)) ? tipo : null;
+  async function buscar(): Promise<{ lista: ResultadoBusca[]; porTipo: boolean }> {
+    const base = { ...params, estimulos: estimulosBusca };
+    if (!tipoEmUso) return { lista: await buscarLugares(base), porTipo: false };
+    if (restoDaBusca) {
+      const porNome = await buscarLugares(base);
+      const procurado = normalizar(params.termo);
+      const bateNoNome = porNome.some((r) =>
+        normalizar(`${r.nome} ${r.endereco ?? ""} ${r.bairro ?? ""}`).includes(procurado),
+      );
+      if (bateNoNome) return { lista: porNome, porTipo: false };
+    }
+    const porTipo = await buscarLugares({
+      ...base,
+      termo: restoDaBusca,
+      categorias: [tipoEmUso.categoria],
+      subtipos: tipoEmUso.subtipos,
+      palavra: tipoEmUso.palavra,
+    });
+    if (porTipo.length > 0) return { lista: porTipo, porTipo: true };
+    return { lista: await buscarLugares(base), porTipo: false };
+  }
+  let tipoUsado = false;
   try {
-    [resultados, detalhe, relatos] = await Promise.all([
-      buscarLugares({ ...params, estimulos: estimulosBusca }),
+    let busca: Awaited<ReturnType<typeof buscar>>;
+    [busca, detalhe, relatos] = await Promise.all([
+      buscar(),
       lugarId ? obterDetalheLugar(lugarId) : Promise.resolve(null),
       lugarId && painel === "relatos" ? relatosDoLugar(lugarId) : Promise.resolve([]),
     ]);
+    resultados = busca.lista;
+    tipoUsado = busca.porTipo;
   } catch (e) {
     console.error("Erro na busca", e);
     falhou = true;
@@ -57,9 +99,13 @@ export default async function Inicio(props: PageProps<"/">) {
     ? "Não foi possível buscar agora."
     : resultados.length === 0
       ? "Nenhum lugar encontrado."
-      : `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
-          resultados.length === 1 ? "lugar" : "lugares"
-        }${params.area ? " nesta área" : ""}`;
+      : tipoUsado && tipoEmUso
+        ? `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
+            resultados.length === 1 ? "lugar" : "lugares"
+          }: ${tipoEmUso.rotulo}${restoDaBusca ? ` · “${restoDaBusca}”` : ""}`
+        : `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
+            resultados.length === 1 ? "lugar" : "lugares"
+          }${params.termo ? ` para “${params.termo}”` : params.area ? " nesta área" : ""}`;
 
   // Endereços do painel do lugar, mantendo a busca atual.
   const base = new URLSearchParams();
@@ -147,7 +193,7 @@ export default async function Inicio(props: PageProps<"/">) {
     <div className="flex items-start gap-2">
       <Form action="/" role="search" className="flex min-w-0 flex-1 gap-2">
         <label htmlFor="busca" className="sr-only">
-          Nome do lugar, endereço ou bairro
+          Nome do lugar, bairro ou tipo de lugar, como cafés ou museus
         </label>
         <input
           id="busca"
@@ -155,7 +201,7 @@ export default async function Inicio(props: PageProps<"/">) {
           type="search"
           defaultValue={params.termo}
           className="campo campo-pilula border-transparent shadow-suave"
-          placeholder="Lugar, endereço ou bairro"
+          placeholder="Lugar, bairro ou tipo (ex.: cafés)"
         />
         {params.categorias.map((c) => (
           <input key={c} type="hidden" name="tipo" value={c} />
@@ -202,6 +248,7 @@ export default async function Inicio(props: PageProps<"/">) {
           usarPerfil={!!perfilConta && params.usarPerfil}
           area={params.area}
           resumo={resumo}
+          termoBusca={params.termo}
           falhou={falhou}
           busca={busca}
           detalhe={detalhe}

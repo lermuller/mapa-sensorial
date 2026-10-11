@@ -18,7 +18,7 @@ const SECOES = [
 const PASSOS: { titulo: string; texto: string; forma: FormaPadrao; rosto: Rosto }[] = [
   {
     titulo: "Busque um lugar",
-    texto: "Pelo nome, endereço ou bairro, ou explorando o mapa de Porto Alegre.",
+    texto: "Pelo nome, pelo bairro ou pelo tipo, como “cafés”, ou explorando o mapa de Porto Alegre.",
     forma: "bolha",
     rosto: "curioso",
   },

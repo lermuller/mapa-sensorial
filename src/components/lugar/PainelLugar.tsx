@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { IconeCategoria } from "@/components/IconeCategoria";
+import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
 import { LinkSeta } from "@/components/LinkSeta";
+import { caminhoLugar, textoCompartilhar } from "@/lib/compartilhar";
 import type { DetalheLugar } from "@/lib/dados";
 import { ROTULO_CATEGORIA, type Estimulo } from "@/lib/estimulos";
 import { formatarData } from "@/lib/formato";
@@ -55,9 +57,18 @@ export function PainelLugar({
             </p>
           </div>
         </div>
-        <Link href={hrefs.relatar} scroll={false} className="botao w-full">
-          Contar como é lá
-        </Link>
+        {/* Ação principal à direita */}
+        <div className="flex gap-2">
+          <BotaoCompartilhar
+            caminho={caminhoLugar(lugar.id)}
+            titulo={`${lugar.nome}: como é lá?`}
+            texto={textoCompartilhar(detalhe)}
+            className="shrink-0 px-3"
+          />
+          <Link href={hrefs.relatar} scroll={false} className="botao flex-1">
+            Contar como é lá
+          </Link>
+        </div>
       </header>
 
       {enviado && (
