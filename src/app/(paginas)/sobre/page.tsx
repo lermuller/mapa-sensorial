@@ -138,8 +138,9 @@ export default function PaginaSobre() {
             ))}
           </ul>
           <p className="text-texto-suave">
-            Um estímulo aparece no lugar quando pelo menos 2 pessoas contaram como é, nos últimos
-            12 meses. Os relatos mais recentes pesam mais. Com relatos que dizem o horário, o mapa
+            Um estímulo aparece no lugar assim que alguém conta como ele estava, considerando os
+            últimos 12 meses. Com poucos relatos, ele vem com um aviso. Os relatos mais recentes
+            pesam mais. Com relatos que dizem o horário, o mapa
             também mostra o melhor horário para ir.
           </p>
         </div>

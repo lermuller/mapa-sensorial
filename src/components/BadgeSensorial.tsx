@@ -38,7 +38,7 @@ export function BadgeSensorial({
         {nome} <span className="font-normal">{nivel}</span>
         {destaque && <span className="sr-only"> (está no seu perfil)</span>}
         {!compacto && badge.poucosRelatos && (
-          <span className="font-normal"> · poucos relatos</span>
+          <span className="font-normal"> · {badge.total === 1 ? "1 relato" : "poucos relatos"}</span>
         )}
       </span>
     </span>

@@ -396,6 +396,13 @@
     outline-offset: 2px;
   }
 
+  /* Opções com o input escondido (sr-only) dentro do rótulo: o input fica preso ao rótulo.
+     Sem isso ele se posicionava em relação a um ancestral distante, e ao tocar na opção o
+     navegador rolava esse ancestral (até um painel com overflow hidden) para "mostrar" o input. */
+  label:has(> input.sr-only) {
+    position: relative;
+  }
+
   a {
     color: var(--link);
     text-decoration: underline;
@@ -554,5 +561,20 @@
     border: var(--linha) solid var(--borda);
     border-radius: 1rem;
     padding: 0.75rem 1rem;
+  }
+}
+
+/* Data e hora: no Safari do iPhone esses campos têm largura mínima própria e
+   estouram a coluna; sem a aparência nativa, respeitam a largura do campo. */
+@layer components {
+  .campo-data {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    display: block;
+    text-align: left;
+  }
+  .campo-data::-webkit-date-and-time-value {
+    text-align: left;
   }
 }

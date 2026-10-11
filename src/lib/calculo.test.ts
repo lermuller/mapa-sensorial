@@ -69,9 +69,10 @@ describe("pesoRecencia", () => {
 });
 
 describe("calcularBadges", () => {
-  it("não mostra badge com menos de 2 relatos", () => {
+  it("mostra o nível já com 1 relato, com o aviso", () => {
     const b = calcularBadges([relato({ intensidades: { som: 2 } })], AGORA);
-    expect(b.som).toBeNull();
+    expect(b.som).toMatchObject({ nivel: "alto", total: 1, poucosRelatos: true });
+    expect(b.luz).toBeNull();
   });
 
   it("calcula nível e aviso de poucos relatos", () => {
@@ -80,7 +81,7 @@ describe("calcularBadges", () => {
       AGORA,
     );
     expect(b.som).toMatchObject({ nivel: "alto", total: 2, poucosRelatos: true });
-    expect(b.luz).toBeNull();
+    expect(b.luz).toMatchObject({ nivel: "baixo", total: 1 });
   });
 
   it("tira o aviso a partir de 5 relatos", () => {
@@ -100,7 +101,8 @@ describe("calcularBadges", () => {
       AGORA,
     );
     expect(b.som?.nivel).toBe("medio");
-    expect(b.cheiro).toBeNull();
+    // "não reparei" não conta: cheiro tem 1 relato, não 2
+    expect(b.cheiro).toMatchObject({ nivel: "alto", total: 1 });
   });
 
   it("dá mais peso aos relatos recentes", () => {

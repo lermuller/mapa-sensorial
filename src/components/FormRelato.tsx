@@ -4,15 +4,10 @@ import { useFormulario } from "@/lib/useFormulario";
 import { useState } from "react";
 import type { EstadoForm } from "@/lib/acoes/relatos";
 import type { RelatoLinha } from "@/lib/dados";
-import { ESTIMULOS, INFO_ESTIMULO } from "@/lib/estimulos";
-import { Personagem } from "./Personagem";
-
-const OPCOES = [
-  { valor: "", rotulo: "Não reparei" },
-  { valor: "0", rotulo: "Baixo" },
-  { valor: "1", rotulo: "Médio" },
-  { valor: "2", rotulo: "Alto" },
-];
+import { COR_ESTIMULO, ESTIMULOS, INFO_ESTIMULO, NIVEIS, rotuloNivel } from "@/lib/estimulos";
+import { BlocoOpcao } from "./BlocoOpcao";
+import { PilulaOpcao } from "./PilulaOpcao";
+import { ROSTO_DO_NIVEL } from "./Personagem";
 
 export function FormRelato({
   acao,
@@ -39,54 +34,75 @@ export function FormRelato({
           Para cada um, diga como estava. Se não reparou, deixe em “Não reparei”. Avalie pelo menos
           um.
         </p>
-        {ESTIMULOS.map((e) => (
-          <fieldset key={e} className="cartao">
-            <legend className="flex items-center gap-2 px-1 font-bold">
-              <Personagem forma={e} rosto="calmo" className="h-9 w-9" />
-              {INFO_ESTIMULO[e].nome}
-            </legend>
-            <p className="ajuda mb-2">{INFO_ESTIMULO[e].cobre}</p>
-            <div className="grid grid-cols-2 gap-2 @md:grid-cols-4">
-              {OPCOES.map((o) => {
-                const atual = inicial?.[e];
-                const marcado = (atual === null || atual === undefined ? "" : String(atual)) === o.valor;
-                return (
-                  <label
-                    key={o.valor}
-                    className="chip min-h-10 justify-start has-checked:outline-2 has-checked:outline-texto"
+        {ESTIMULOS.map((e) => {
+          const atual = inicial?.[e];
+          const valorAtual = atual === null || atual === undefined ? "" : String(atual);
+          return (
+            <fieldset key={e} className="space-y-2">
+              <legend className="text-lg font-extrabold tracking-[-0.03em]">
+                {INFO_ESTIMULO[e].nome}
+              </legend>
+              <p className="ajuda -mt-1">{INFO_ESTIMULO[e].cobre}</p>
+              {/* Blocos como nos filtros: os 3 níveis lado a lado e "Não reparei" embaixo */}
+              <div className="grid grid-cols-3 gap-2">
+                {NIVEIS.map((n, i) => (
+                  <BlocoOpcao
+                    key={n}
+                    tipo="radio"
+                    name={e}
+                    value={String(i)}
+                    defaultChecked={valorAtual === String(i)}
+                    cor={COR_ESTIMULO[e]}
+                    personagem={{ forma: e, rosto: ROSTO_DO_NIVEL[n] }}
+                    className="min-h-22"
                   >
-                    <input
-                      type="radio"
-                      name={e}
-                      value={o.valor}
-                      defaultChecked={marcado}
-                      className="h-5 w-5 accent-destaque"
-                    />
-                    {o.rotulo}
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-        ))}
+                    {rotuloNivel(e, n)}
+                  </BlocoOpcao>
+                ))}
+                <BlocoOpcao
+                  tipo="radio"
+                  name={e}
+                  value=""
+                  defaultChecked={valorAtual === ""}
+                  horizontal
+                  className="col-span-3 min-h-11 py-2"
+                >
+                  Não reparei
+                </BlocoOpcao>
+              </div>
+            </fieldset>
+          );
+        })}
       </fieldset>
 
       <fieldset className="space-y-3">
         <legend className="text-xl font-extrabold tracking-[-0.035em]">Quando você foi</legend>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
+        {/* Pílulas como nos filtros, no lugar de botões de rádio */}
+        <div className="flex flex-wrap gap-1.5">
+          <PilulaOpcao
+            tipo="radio"
             name="quando"
             value="data"
             checked={quando === "data"}
             onChange={() => setQuando("data")}
-            className="h-5 w-5 accent-destaque"
-          />
-          Num dia e horário específicos
-        </label>
-        {quando === "data" && (
-          <div className="grid gap-3 pl-7 sm:grid-cols-2">
-            <div>
+          >
+            Num dia e horário
+          </PilulaOpcao>
+          <PilulaOpcao
+            tipo="radio"
+            name="quando"
+            value="sempre"
+            checked={quando === "sempre"}
+            onChange={() => setQuando("sempre")}
+          >
+            É sempre assim
+          </PilulaOpcao>
+        </div>
+        {quando === "data" ? (
+          // min-w-0: no iPhone os campos de data e hora têm largura mínima própria e
+          // empurravam o painel para os lados.
+          <div className="grid grid-cols-2 gap-2">
+            <div className="min-w-0">
               <label htmlFor="data" className="rotulo">
                 Data
               </label>
@@ -97,10 +113,10 @@ export function FormRelato({
                 max={hoje}
                 required
                 defaultValue={inicial?.data ?? hoje}
-                className="campo"
+                className="campo campo-data"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label htmlFor="hora" className="rotulo">
                 Horário aproximado
               </label>
@@ -110,24 +126,13 @@ export function FormRelato({
                 type="time"
                 required
                 defaultValue={inicial?.hora?.slice(0, 5) ?? ""}
-                className="campo"
+                className="campo campo-data"
               />
             </div>
           </div>
-        )}
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="quando"
-            value="sempre"
-            checked={quando === "sempre"}
-            onChange={() => setQuando("sempre")}
-            className="h-5 w-5 accent-destaque"
-          />
-          É sempre assim
-        </label>
-        {quando === "sempre" && (
+        ) : (
           <>
+            <p className="ajuda">O lugar costuma ser assim em qualquer dia e horário.</p>
             <input type="hidden" name="data" value="" />
             <input type="hidden" name="hora" value="" />
           </>

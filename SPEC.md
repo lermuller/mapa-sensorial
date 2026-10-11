@@ -105,7 +105,7 @@ Para cada lugar × estímulo:
 2. Converte: baixo = 0, médio = 1, alto = 2.
 3. Média ponderada por recência: o peso de um relato cai pela metade a cada 6 meses.
 4. Resultado: < 0,67 → **baixo**, 0,67–1,33 → **médio**, > 1,33 → **alto**.
-5. O badge só aparece com **pelo menos 2 relatos**. Com 2–4 relatos, mostra o aviso "poucos relatos".
+5. O badge aparece **a partir de 1 relato**, para quem relata ver o resultado na hora. Com 1 relato mostra o aviso "1 relato"; com 2–4, "poucos relatos". A proteção contra relatos isolados fica com a moderação. Melhor horário, grade da semana e filtro "Quando vou" continuam exigindo 2 relatos na faixa.
 
 Os relatos "é sempre assim" entram em todos os horários. Os relatos com horário entram no cálculo geral e no de melhor horário.
 

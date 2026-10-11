@@ -10,28 +10,37 @@ export function PilulaOpcao({
   name,
   value,
   defaultChecked,
+  checked,
+  onChange,
   children,
   icone,
+  className = "",
 }: {
   tipo?: "checkbox" | "radio";
   name: string;
   value: string;
   defaultChecked?: boolean;
+  /** Modo controlado (com onChange), quando a escolha muda outras partes do formulário. */
+  checked?: boolean;
+  onChange?: () => void;
   children: ReactNode;
   /** Personagem ou ícone à esquerda. */
   icone?: ReactNode;
+  className?: string;
 }) {
   return (
     <label
       className={`chip group/pilula font-medium has-focus-visible:outline-3 has-focus-visible:outline-[var(--foco)] ${
         icone ? "chip-personagem" : ""
-      }`}
+      } ${className}`}
     >
       <input
         type={tipo}
         name={name}
         value={value}
         defaultChecked={defaultChecked}
+        checked={checked}
+        onChange={onChange}
         className="sr-only"
       />
       {icone}

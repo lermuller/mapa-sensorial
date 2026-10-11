@@ -47,7 +47,9 @@ function BlocoEstimulo({ estimulo, badge }: { estimulo: Estimulo; badge: Badge |
     >
       <span className="text-xs font-bold">{nome}</span>
       <span className="display mt-1 text-2xl">{rotuloNivel(estimulo, badge.nivel)}</span>
-      {badge.poucosRelatos && <span className="mt-1 text-xs">poucos relatos</span>}
+      {badge.poucosRelatos && (
+        <span className="mt-1 text-xs">{badge.total === 1 ? "1 relato" : "poucos relatos"}</span>
+      )}
       <Personagem
         forma={estimulo}
         rosto={ROSTO_DO_NIVEL[badge.nivel]}
@@ -92,8 +94,8 @@ export function ResumoSensorial({
       </h2>
       {!algumBadge && (
         <p className="ajuda col-span-2">
-          Ainda são poucos relatos. Cada estímulo aparece aqui quando pelo menos 2 pessoas contam
-          como é.
+          Os relatos dos últimos 12 meses não avaliaram nenhum estímulo. Cada estímulo aparece aqui
+          assim que alguém conta como ele estava.
         </p>
       )}
 

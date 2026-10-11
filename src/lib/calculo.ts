@@ -6,6 +6,9 @@ import { ESTIMULOS, type Estimulo, type Intensidade, type Nivel } from "./estimu
 /** Pontos de partida, revisar quando houver dados reais. */
 export const JANELA_MESES = 12;
 export const MEIA_VIDA_MESES = 6;
+/** Mínimo de relatos para o nível de um estímulo aparecer no lugar (com 1, já aparece com o aviso). */
+export const MINIMO_BADGE = 1;
+/** Mínimo de relatos para valer um horário: melhor horário, grade da semana e filtro "Quando vou". */
 export const MINIMO_RELATOS = 2;
 /** Com até este número de relatos o badge aparece com o aviso "poucos relatos". */
 export const POUCOS_RELATOS_ATE = 4;
@@ -100,8 +103,8 @@ export function relatoNaFaixa(r: RelatoCalculo, filtro: Partial<Faixa>): boolean
 
 type Acumulado = { soma: number; pesos: number; total: number };
 
-function badgeDe(estimulo: Estimulo, a: Acumulado): Badge | null {
-  if (a.total < MINIMO_RELATOS || a.pesos === 0) return null;
+function badgeDe(estimulo: Estimulo, a: Acumulado, minimo: number): Badge | null {
+  if (a.total < minimo || a.pesos === 0) return null;
   const media = a.soma / a.pesos;
   return {
     estimulo,
@@ -117,6 +120,7 @@ export function calcularBadges(
   relatos: RelatoCalculo[],
   agora: Date,
   filtro?: Partial<Faixa>,
+  minimo = MINIMO_BADGE,
 ): Record<Estimulo, Badge | null> {
   const acc = Object.fromEntries(
     ESTIMULOS.map((e) => [e, { soma: 0, pesos: 0, total: 0 }]),
@@ -135,7 +139,7 @@ export function calcularBadges(
     }
   }
 
-  return Object.fromEntries(ESTIMULOS.map((e) => [e, badgeDe(e, acc[e])])) as Record<
+  return Object.fromEntries(ESTIMULOS.map((e) => [e, badgeDe(e, acc[e], minimo)])) as Record<
     Estimulo,
     Badge | null
   >;
@@ -153,7 +157,8 @@ export function calcularBadgesParaFaixa(
   const geral = calcularBadges(relatos, agora);
   const daFaixa = new Set<Estimulo>();
   if (!filtro.dia && !filtro.periodo) return { badges: geral, daFaixa };
-  const naFaixa = calcularBadges(relatos, agora, filtro);
+  // Um horário só substitui o geral com relatos suficientes (1 relato de manhã não basta).
+  const naFaixa = calcularBadges(relatos, agora, filtro, MINIMO_RELATOS);
   const badges = { ...geral };
   for (const e of ESTIMULOS) {
     if (naFaixa[e]) {
