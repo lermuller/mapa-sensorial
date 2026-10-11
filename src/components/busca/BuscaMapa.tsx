@@ -116,9 +116,15 @@ export function BuscaMapa({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  /** Endereço da página inicial com a mesma busca, abrindo (ou fechando) um lugar. */
+  /**
+   * Endereço da página inicial com a mesma busca, abrindo (ou fechando) um lugar. Abrir ou
+   * fechar sempre volta ao resumo do lugar: a tela interna (relatos, contar como é lá) e o
+   * aviso de relato enviado não passam de um lugar para outro.
+   */
   function hrefCom(lugarId: string | null) {
     const u = new URLSearchParams(searchParams.toString());
+    u.delete("painel");
+    u.delete("enviado");
     if (lugarId) u.set("lugar", lugarId);
     else u.delete("lugar");
     const qs = u.toString();

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
+import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
 import { LinkSeta, VoltarAoMapa } from "@/components/LinkSeta";
 import { Personagem, ROSTO_DO_NIVEL, type FormaPadrao, type Rosto } from "@/components/Personagem";
 import { env } from "@/lib/env";
-import { ESTIMULOS, INFO_ESTIMULO, NIVEIS, ROTULO_NIVEL } from "@/lib/estimulos";
+import { COR_ESTIMULO, ESTIMULOS, INFO_ESTIMULO, NIVEIS, ROTULO_NIVEL } from "@/lib/estimulos";
 
 export const metadata: Metadata = { title: "Sobre o projeto" };
 
@@ -74,8 +75,8 @@ export default function PaginaSobre() {
           movimentado pode ser esgotante para outra pessoa.
         </p>
         <p>
-          Saber antes como é um lugar muda tudo: dá para escolher o horário mais calmo, levar um
-          fone, combinar uma pausa ou decidir ir outro dia. Previsibilidade sensorial é autonomia.
+          Saber antes como é um lugar ajuda a se preparar: dá para escolher o horário mais calmo,
+          levar um fone, combinar uma pausa ou decidir ir outro dia. Previsibilidade sensorial é autonomia.
           O Mapa Sensorial junta o que quem já foi conta, para que ninguém precise descobrir na
           hora.
         </p>
@@ -97,9 +98,9 @@ export default function PaginaSobre() {
         <ol className="grid gap-2 sm:grid-cols-3">
           {PASSOS.map((p, i) => (
             <li key={p.titulo} className="cartao space-y-2 bg-fundo p-4 text-sm">
-              <span className="flex items-center gap-1.5">
-                <Personagem forma={p.forma} rosto={p.rosto} className="h-10 w-10" />
-                <span aria-hidden="true" className="display text-3xl text-verde-titulo">
+              <span className="flex items-end gap-2">
+                <Personagem forma={p.forma} rosto={p.rosto} className="h-20 w-20" />
+                <span aria-hidden="true" className="display pb-1 text-5xl text-verde-titulo">
                   {i + 1}
                 </span>
               </span>
@@ -113,25 +114,43 @@ export default function PaginaSobre() {
         </ol>
 
         <h3 className="pt-2 text-lg">O que as pessoas avaliam</h3>
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {ESTIMULOS.map((e) => (
-            <li key={e} className="flex gap-3">
-              <Personagem forma={e} rosto="calmo" className="h-10 w-10" />
-              <span className="text-sm">
-                <strong className="block text-[0.9375rem]">{INFO_ESTIMULO[e].nome}</strong>
-                <span className="text-texto-suave">{INFO_ESTIMULO[e].cobre}</span>
-              </span>
+        {/* Blocos na cor de cada estímulo, como na página do lugar, com o personagem em destaque */}
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {ESTIMULOS.map((e, i) => (
+            <li
+              key={e}
+              className="relative flex min-h-48 flex-col overflow-hidden rounded-[24px] p-4 pb-24 text-tinta"
+              style={{ background: COR_ESTIMULO[e], border: "var(--linha) solid var(--borda)" }}
+            >
+              <strong className="display text-2xl">{INFO_ESTIMULO[e].nome}</strong>
+              <span className="mt-1 text-sm">{INFO_ESTIMULO[e].cobre}</span>
+              <Personagem
+                forma={e}
+                rosto={i % 2 ? "feliz" : "calmo"}
+                branco
+                className="pointer-events-none absolute -bottom-3 -right-3 h-28 w-28 rotate-[-8deg]"
+              />
             </li>
           ))}
         </ul>
 
         <div className="cartao space-y-3 bg-fundo p-4 text-sm">
-          <p className="font-bold">A carinha mostra o nível</p>
-          <ul className="flex flex-wrap gap-4" aria-label="Exemplo com o som">
+          <p className="text-base font-bold">A carinha mostra o nível</p>
+          <ul className="grid grid-cols-3 gap-2" aria-label="Exemplo com o som">
             {NIVEIS.map((n) => (
-              <li key={n} className="flex items-center gap-1.5 font-bold">
-                <Personagem forma="som" rosto={ROSTO_DO_NIVEL[n]} className="h-8 w-8" />
-                {ROTULO_NIVEL[n]}
+              <li
+                key={n}
+                className="relative flex min-h-28 flex-col overflow-hidden rounded-[20px] p-3 text-tinta"
+                style={{ background: COR_ESTIMULO.som, border: "var(--linha) solid var(--borda)" }}
+              >
+                <span className="text-xs font-bold">Som</span>
+                <span className="display mt-1 text-2xl">{ROTULO_NIVEL[n]}</span>
+                <Personagem
+                  forma="som"
+                  rosto={ROSTO_DO_NIVEL[n]}
+                  branco
+                  className="pointer-events-none absolute -bottom-3 -right-2.5 h-20 w-20"
+                />
               </li>
             ))}
           </ul>
@@ -199,6 +218,21 @@ export default function PaginaSobre() {
               <span className="block italic text-texto-suave">E-mail de contato em breve.</span>
             )}
           </li>
+          <li className="cartao flex flex-wrap items-center justify-between gap-3 bg-fundo p-4 text-sm sm:col-span-2">
+            <span className="min-w-0 flex-1 space-y-1">
+              <strong className="block text-base">Compartilhe o projeto</strong>
+              <span className="block text-texto-suave">
+                Quanto mais gente conhece, mais lugares ganham relatos. Mande para amigos, famílias,
+                grupos e associações.
+              </span>
+            </span>
+            <BotaoCompartilhar
+              caminho="/"
+              titulo="Mapa Sensorial · como é lá?"
+              texto="Conhece o Mapa Sensorial? Dá para ver como são o barulho, a luz, os cheiros e o movimento dos lugares de Porto Alegre antes de ir, com relatos da comunidade."
+              className="shrink-0"
+            />
+          </li>
         </ul>
       </Secao>
 
@@ -209,8 +243,8 @@ export default function PaginaSobre() {
         >
           <p className="text-lg font-extrabold tracking-[-0.03em]">Oi! Aqui é Léo Muller.</p>
           <p>
-            Sou designer de produto, autista e com TDAH, e recebi os dois diagnósticos na vida
-            adulta. Entender meu jeito de funcionar mudou muita coisa: passei a reconhecer por que
+            Sou designer de produto e autor do Mapa Sensorial. Sou autista e tenho TDAH, e recebi os
+            dois diagnósticos na vida adulta. Entender meu jeito de funcionar mudou muita coisa: passei a reconhecer por que
             alguns lugares me esgotam e outros não, e o quanto saber antes como é um lugar faz
             diferença.
           </p>
@@ -224,6 +258,9 @@ export default function PaginaSobre() {
             Se você é autista, tem TDAH ou convive com quem é, a sua experiência faz muita
             diferença aqui.
           </p>
+          <LinkSeta href="https://www.linkedin.com/in/leormuller" externo>
+            Meu LinkedIn
+          </LinkSeta>
           <Personagem
             forma="bolha"
             rosto="piscando"
