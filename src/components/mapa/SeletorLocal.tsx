@@ -3,11 +3,25 @@
 import type { Map as MapaLibre, Marker } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { carregarMapLibre, corDoTema, criarMapa } from "./base";
+import { pedirLocalizacao } from "./localizacao";
 
 /** Mapa para marcar a localização de um lugar novo. Grava lat/lng em campos ocultos. */
 export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: string; nomeLng?: string }) {
   const container = useRef<HTMLDivElement>(null);
   const [ponto, setPonto] = useState<{ lat: number; lng: number } | null>(null);
+  const mapaRef = useRef<MapaLibre | null>(null);
+  const [aviso, setAviso] = useState("");
+
+  /** Leva o mapa até a pessoa, para marcar um lugar fora de Porto Alegre sem arrastar o mapa. */
+  async function irParaPerto() {
+    setAviso("");
+    try {
+      const { lat, lng } = await pedirLocalizacao();
+      mapaRef.current?.jumpTo({ center: [lng, lat], zoom: 16 });
+    } catch (e) {
+      setAviso((e as Error).message);
+    }
+  }
 
   useEffect(() => {
     let mapa: MapaLibre | null = null;
@@ -17,6 +31,7 @@ export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: s
       .then(async (m) => {
         if (!m) return;
         mapa = m;
+        mapaRef.current = m;
         const { Marker } = await carregarMapLibre();
         m.on("click", (e) => {
           const { lat, lng } = e.lngLat;
@@ -34,6 +49,16 @@ export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: s
 
   return (
     <div className="space-y-2">
+      <div className="flex justify-end">
+        <button type="button" onClick={irParaPerto} className="botao-terciario">
+          Ir para minha localização
+        </button>
+      </div>
+      {aviso && (
+        <p role="alert" className="erro text-sm">
+          {aviso}
+        </p>
+      )}
       <div
         ref={container}
         className="h-72 w-full overflow-hidden rounded-xl border border-borda"

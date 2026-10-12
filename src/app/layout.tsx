@@ -16,7 +16,7 @@ const atkinson = Atkinson_Hyperlegible_Next({
 });
 
 const DESCRICAO =
-  "Como é lá? Relatos da comunidade sobre som, luz, cheiro, lotação, visual e temperatura dos lugares de Porto Alegre.";
+  "Como é lá? Relatos da comunidade sobre som, luz, cheiro, lotação, visual e temperatura dos lugares do Brasil.";
 
 export const metadata: Metadata = {
   // Base dos endereços absolutos das prévias (Open Graph) ao compartilhar links.

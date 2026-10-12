@@ -2,7 +2,11 @@ import Link from "next/link";
 import { BadgeSensorial } from "@/components/BadgeSensorial";
 import { IconeCategoria } from "@/components/IconeCategoria";
 import type { ResultadoBusca } from "@/lib/dados";
+import { localDoLugar } from "@/lib/formato";
 import { ESTIMULOS, ROTULO_CATEGORIA, type Estimulo } from "@/lib/estimulos";
+
+const CLASSE_LINK =
+  "text-texto no-underline after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none";
 
 /** Card da lista de resultados. O card inteiro abre o lugar no painel sobre o mapa. */
 export function CartaoLugar({
@@ -10,11 +14,16 @@ export function CartaoLugar({
   estimulos,
   href,
   selecionado = false,
+  externo = false,
+  Titulo = "h3",
 }: {
   lugar: ResultadoBusca;
   estimulos: Estimulo[];
   href: string;
   selecionado?: boolean;
+  /** Lugar do OpenStreetMap que ainda não está na base: abrir grava o lugar (link comum, sem pré-carregar). */
+  externo?: boolean;
+  Titulo?: "h3" | "h4";
 }) {
   // Os estímulos da busca (filtros e perfil) aparecem primeiro.
   const ordem = [...estimulos, ...ESTIMULOS.filter((e) => !estimulos.includes(e))];
@@ -28,22 +37,24 @@ export function CartaoLugar({
     >
       <IconeCategoria categoria={lugar.categoria} className="mt-0.5 h-8 w-8" />
       <div className="min-w-0 flex-1 space-y-1.5">
-        <h3 className="text-base leading-snug">
+        <Titulo className="text-base leading-snug">
           {/* O link cobre o card todo (after:inset-0) */}
-          <Link
-            href={href}
-            scroll={false}
-            className="text-texto no-underline after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none"
-          >
-            {lugar.nome}
-          </Link>
-        </h3>
+          {externo ? (
+            <a href={href} rel="nofollow" className={CLASSE_LINK}>
+              {lugar.nome}
+            </a>
+          ) : (
+            <Link href={href} scroll={false} className={CLASSE_LINK}>
+              {lugar.nome}
+            </Link>
+          )}
+        </Titulo>
         <p className="text-sm text-texto">
-          {ROTULO_CATEGORIA[lugar.categoria]}
-          {lugar.endereco && ` · ${lugar.endereco}`}
-          {lugar.bairro && ` · ${lugar.bairro}`}
+          {[ROTULO_CATEGORIA[lugar.categoria], localDoLugar(lugar)].filter(Boolean).join(" · ")}
         </p>
-        {lugar.totalRelatos === 0 ? (
+        {externo ? (
+          <p className="text-[0.8125rem] italic text-texto-suave">Ainda sem relatos. Seja a primeira pessoa a contar.</p>
+        ) : lugar.totalRelatos === 0 ? (
           <p className="text-[0.8125rem] italic text-texto-suave">
             Ninguém contou como é aqui ainda. Você já foi?
           </p>

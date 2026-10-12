@@ -109,10 +109,8 @@ const TERMOS: Record<string, Tipo> = {
   "orgao publico": { categoria: "servico_publico", rotulo: "serviços públicos" },
 };
 
-/** Palavras de ligação que sobram ao tirar o tipo: "café NO Bom Fim", "museus EM Porto Alegre". */
+/** Palavras de ligação que sobram ao tirar o tipo: "café NO Bom Fim", "museus EM Recife". */
 const LIGACAO = new Set(["no", "na", "nos", "nas", "em", "de", "do", "da", "dos", "das", "perto", "proximo", "proxima", "um", "uma", "uns", "umas", "o", "a", "os", "as"]);
-/** Sobra que não ajuda a achar nada (todo lugar é em Porto Alegre). */
-const SEM_VALOR = new Set(["porto", "alegre", "poa"]);
 
 export function normalizar(texto: string): string {
   return texto
@@ -156,7 +154,7 @@ export function interpretarBusca(busca: string): BuscaInterpretada {
       if (!tipo) continue;
       const resto = palavras
         .filter((_, j) => j < i || j >= i + tamanho)
-        .filter((p) => !LIGACAO.has(p) && !SEM_VALOR.has(p));
+        .filter((p) => !LIGACAO.has(p));
       return { termo: resto.join(" "), tipo };
     }
   }

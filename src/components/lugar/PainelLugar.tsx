@@ -7,7 +7,7 @@ import { LinkSeta } from "@/components/LinkSeta";
 import { caminhoLugar, textoCompartilhar } from "@/lib/compartilhar";
 import type { DetalheLugar } from "@/lib/dados";
 import { ROTULO_CATEGORIA, type Estimulo } from "@/lib/estimulos";
-import { formatarData } from "@/lib/formato";
+import { formatarData, localDoLugar } from "@/lib/formato";
 import { ResumoSensorial } from "./ResumoSensorial";
 import { SemRelatos } from "./SemRelatos";
 
@@ -51,9 +51,7 @@ export function PainelLugar({
               {lugar.nome}
             </h2>
             <p className="mt-1 text-sm text-texto-suave">
-              {ROTULO_CATEGORIA[lugar.categoria]}
-              {lugar.endereco && ` · ${lugar.endereco}`}
-              {lugar.bairro && ` · ${lugar.bairro}`}
+              {[ROTULO_CATEGORIA[lugar.categoria], localDoLugar(lugar)].filter(Boolean).join(" · ")}
             </p>
           </div>
         </div>

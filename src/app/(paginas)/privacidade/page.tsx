@@ -99,8 +99,15 @@ export default function PaginaPrivacidade() {
           </li>
         </ul>
         <p>
-          Não pedimos documentos, telefone, endereço, data de nascimento nem diagnóstico. Não
-          acessamos a localização do seu aparelho. Para entrar no site não existe senha.
+          Não pedimos documentos, telefone, endereço, data de nascimento nem diagnóstico. Para
+          entrar no site não existe senha.
+        </p>
+        <p>
+          <strong>Localização do aparelho:</strong> só quando você toca em “Perto de mim” ou “Ir
+          para minha localização”, e só depois de autorizar no navegador. Ela fica no seu
+          navegador e serve apenas para mover o mapa: não é gravada nem enviada para o nosso
+          servidor. O mapa passa a mostrar os lugares da área, como se você tivesse
+          arrastado o mapa até lá.
         </p>
       </SecaoLegal>
 
@@ -249,6 +256,13 @@ export default function PaginaPrivacidade() {
             e-mail.
           </li>
           <li>
+            <strong>Photon (Komoot) e Nominatim (Fundação OpenStreetMap)</strong>: busca de
+            lugares do Brasil todo no OpenStreetMap. Recebem do nosso servidor o texto buscado, o
+            lugar escolhido ou o ponto marcado ao adicionar um lugar (para descobrir a cidade). As
+            consultas saem do nosso servidor, então esses serviços não recebem o seu endereço IP
+            nem dados da sua conta.
+          </li>
+          <li>
             <strong>OpenFreeMap</strong>: imagens do mapa. Ao carregar o mapa, seu navegador pede as
             imagens diretamente a esse serviço, que recebe o endereço IP, mas nenhum dado da sua
             conta.
@@ -262,7 +276,7 @@ export default function PaginaPrivacidade() {
 
       <SecaoLegal id="internacional" numero={7} titulo="Transferência internacional">
         <p>
-          O banco de dados fica no Brasil, mas Vercel, Resend e OpenFreeMap podem processar dados
+          O banco de dados fica no Brasil, mas Vercel, Resend, OpenFreeMap, Photon e Nominatim podem processar dados
           em servidores fora do país, como nos Estados Unidos e na Europa. Essas transferências
           seguem o art. 33 da LGPD e se apoiam nas garantias contratuais de proteção de dados
           oferecidas por esses serviços.

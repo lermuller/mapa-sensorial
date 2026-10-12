@@ -23,6 +23,8 @@ export type Lugar = {
   categoria: Categoria;
   endereco: string | null;
   bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
   lat: number;
   lng: number;
   origem: "osm" | "usuario";
@@ -88,6 +90,8 @@ export type Area = { sul: number; oeste: number; norte: number; leste: number };
 export const LIMITE_BUSCA = 100;
 
 export type ResultadoBusca = Lugar & {
+  /** "node/123" quando veio do OpenStreetMap. */
+  osmId: string | null;
   totalRelatos: number;
   badges: Record<Estimulo, Badge | null>;
   pontuacao: number | null;
@@ -132,7 +136,7 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
   }
 
   const resultados: ResultadoBusca[] = lugares.map(
-    (l: Lugar & { total_relatos: number }) => {
+    (l: Lugar & { total_relatos: number; osm_id: string | null }) => {
       const relatos = relatosPorLugar.get(l.id) ?? [];
       const { badges } = calcularBadgesParaFaixa(relatos, agora, filtros.faixa);
       return {
@@ -141,6 +145,9 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
         categoria: l.categoria,
         endereco: l.endereco,
         bairro: l.bairro,
+        cidade: l.cidade,
+        uf: l.uf,
+        osmId: l.osm_id,
         lat: l.lat,
         lng: l.lng,
         origem: l.origem,
@@ -170,12 +177,23 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
 // Lugar
 // ---------------------------------------------------------------------------
 
+/** Ids na nossa base dos lugares do OpenStreetMap que já foram gravados ("node/123" → id). */
+export async function idsPorOsm(osmIds: string[]): Promise<Map<string, string>> {
+  if (osmIds.length === 0) return new Map();
+  const supabase = await criarClienteServidor();
+  const { data } = await supabase.from("lugares").select("id, osm_id").in("osm_id", osmIds);
+  return new Map((data ?? []).map((l: { id: string; osm_id: string }) => [l.osm_id, l.id]));
+}
+
+/** Resultado de fora da base (OpenStreetMap), com o endereço que abre o lugar. */
+export type ResultadoExterno = ResultadoBusca & { href: string };
+
 export async function obterLugar(id: string): Promise<Lugar | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const supabase = await criarClienteServidor();
   const { data, error } = await supabase
     .from("lugares")
-    .select("id, nome, categoria, endereco, bairro, lat, lng, origem")
+    .select("id, nome, categoria, endereco, bairro, cidade, uf, lat, lng, origem")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;

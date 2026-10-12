@@ -33,7 +33,7 @@ export function GET() {
             como é lá?
           </span>
           <span style={{ fontSize: 34, lineHeight: 1.3 }}>
-            Barulho, luz, cheiros e movimento dos lugares de Porto Alegre, contados pela
+            Barulho, luz, cheiros e movimento dos lugares do Brasil, contados pela
             comunidade. Veja antes de ir.
           </span>
         </div>

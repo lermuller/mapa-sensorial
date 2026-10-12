@@ -7,7 +7,7 @@ import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
 import { caminhoLugar, metadadosDoLugar, textoCompartilhar } from "@/lib/compartilhar";
 import { obterDetalheLugar, obterLugar, obterPerfil, paraCalculo, relatosDoLugar } from "@/lib/dados";
 import { ROTULO_CATEGORIA } from "@/lib/estimulos";
-import { formatarData } from "@/lib/formato";
+import { formatarData, localDoLugar } from "@/lib/formato";
 import { usuarioAtualId } from "@/lib/supabase/server";
 import { ItemRelato } from "@/components/lugar/ItemRelato";
 import { ResumoSensorial } from "@/components/lugar/ResumoSensorial";
@@ -47,9 +47,7 @@ export default async function PaginaLugar(props: PageProps<"/lugar/[id]">) {
         </p>
         <h1 className="display text-4xl">{lugar.nome}</h1>
         <p className="text-texto-suave">
-          {ROTULO_CATEGORIA[lugar.categoria]}
-          {lugar.endereco && ` · ${lugar.endereco}`}
-          {lugar.bairro && ` · ${lugar.bairro}`}
+          {[ROTULO_CATEGORIA[lugar.categoria], localDoLugar(lugar)].filter(Boolean).join(" · ")}
         </p>
         {/* Ação principal à direita */}
         <div className="flex flex-wrap justify-end gap-2">

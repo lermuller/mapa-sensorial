@@ -29,7 +29,10 @@ export function metadadosDoLugar(detalhe: DetalheLugar): Metadata {
   const { lugar } = detalhe;
   const titulo = `${lugar.nome}: como é lá?`;
   const niveis = resumoNiveis(detalhe.badges);
-  const descricao = `${ROTULO_CATEGORIA[lugar.categoria]}${lugar.bairro ? ` · ${lugar.bairro}` : ""}. ${
+  const local = [lugar.bairro, lugar.cidade && (lugar.uf ? `${lugar.cidade}/${lugar.uf}` : lugar.cidade)]
+    .filter(Boolean)
+    .join(" · ");
+  const descricao = `${ROTULO_CATEGORIA[lugar.categoria]}${local ? ` · ${local}` : ""}. ${
     niveis ? `${niveis}.` : "Ainda sem relatos."
   } Relatos da comunidade sobre som, luz, cheiro, lotação, visual e temperatura.`;
   const imagem = {

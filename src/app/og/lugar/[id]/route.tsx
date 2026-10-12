@@ -14,8 +14,14 @@ export async function GET(_req: Request, ctx: RouteContext<"/og/lugar/[id]">) {
   const detalhe = await obterDetalheLugar(id);
   const nome = detalhe?.lugar.nome ?? "Mapa Sensorial";
   const local = detalhe
-    ? [ROTULO_CATEGORIA[detalhe.lugar.categoria], detalhe.lugar.bairro].filter(Boolean).join(" · ")
-    : "Porto Alegre";
+    ? [
+        ROTULO_CATEGORIA[detalhe.lugar.categoria],
+        detalhe.lugar.bairro,
+        detalhe.lugar.cidade && (detalhe.lugar.uf ? `${detalhe.lugar.cidade}/${detalhe.lugar.uf}` : detalhe.lugar.cidade),
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "Mapa Sensorial";
   // Os estímulos com nível, na ordem fixa; no máximo 6 cabem numa linha.
   const comNivel = detalhe ? ESTIMULOS.filter((e) => detalhe.badges[e]) : [];
 

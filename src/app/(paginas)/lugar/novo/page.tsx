@@ -14,8 +14,8 @@ export default async function PaginaNovoLugar() {
       <VoltarAoMapa />
       <h1 className="text-2xl">Adicionar lugar</h1>
       <p>
-        Antes, <Link href="/">busque pelo nome</Link> para ver se o lugar já existe. Por enquanto,
-        só lugares de Porto Alegre.
+        Antes, <Link href="/">busque pelo nome</Link> para ver se o lugar já existe. Vale qualquer
+        lugar do Brasil: marque no mapa e a cidade é preenchida sozinha.
       </p>
       <FormLugar />
     </div>

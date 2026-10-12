@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { LinkSeta } from "@/components/LinkSeta";
 import { criarMapa } from "@/components/mapa/base";
-import type { Area, DetalheLugar, ResultadoBusca } from "@/lib/dados";
+import { pedirLocalizacao } from "@/components/mapa/localizacao";
+import type { Area, DetalheLugar, ResultadoBusca, ResultadoExterno } from "@/lib/dados";
 import type { Estimulo } from "@/lib/estimulos";
 import { CartaoLugar } from "./CartaoLugar";
 
@@ -30,6 +31,8 @@ type Props = {
   usarPerfil: boolean;
   /** Texto buscado: ao buscar, a lista de resultados abre (no celular ela fica recolhida). */
   termoBusca: string;
+  /** Lugares do Brasil todo (OpenStreetMap) que ainda não estão na base, para completar a busca. */
+  externos: ResultadoExterno[];
 };
 
 /**
@@ -38,12 +41,13 @@ type Props = {
  */
 let boasVindasMostradas = false;
 
-function paraGeoJSON(resultados: ResultadoBusca[]): GeoJSON.FeatureCollection {
+function paraGeoJSON(resultados: (ResultadoBusca | ResultadoExterno)[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: resultados.map((l) => ({
       type: "Feature",
-      properties: { id: l.id, relatos: l.totalRelatos > 0 ? 1 : 0 },
+      // Externos levam o endereço que grava e abre o lugar.
+      properties: { id: l.id, relatos: l.totalRelatos > 0 ? 1 : 0, href: "href" in l ? l.href : "" },
       geometry: { type: "Point", coordinates: [l.lng, l.lat] },
     })),
   };
@@ -89,6 +93,7 @@ export function BuscaMapa({
   conteudoLugar,
   usarPerfil,
   termoBusca,
+  externos,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const painel = useRef<HTMLOListElement>(null);
@@ -202,8 +207,9 @@ export function BuscaMapa({
             },
           });
           mapa.on("click", "lugares", (e) => {
-            const id = e.features?.[0]?.properties?.id as string | undefined;
-            if (id) abrirLugarRef.current(id);
+            const props = e.features?.[0]?.properties;
+            if (props?.href) window.location.assign(props.href as string);
+            else if (props?.id) abrirLugarRef.current(props.id as string);
           });
           mapa.on("mouseenter", "lugares", () => (mapa.getCanvas().style.cursor = "pointer"));
           mapa.on("mouseleave", "lugares", () => (mapa.getCanvas().style.cursor = ""));
@@ -227,19 +233,21 @@ export function BuscaMapa({
 
   // Atualiza os pontos e o enquadramento só quando os resultados mudam de fato
   // (abrir um lugar recarrega a página com a mesma busca; o mapa não deve pular).
+  // No mapa entram também os lugares do Brasil todo que completam a busca.
+  const noMapa = useMemo(() => [...resultados, ...externos], [resultados, externos]);
   const chaveResultados = useMemo(
     () =>
-      resultados.map((r) => r.id).join(",") +
+      noMapa.map((r) => r.id).join(",") +
       "|" +
       (area ? [area.sul, area.oeste, area.norte, area.leste].join(",") : ""),
-    [resultados, area],
+    [noMapa, area],
   );
-  const resultadosRef = useRef(resultados);
+  const resultadosRef = useRef<ResultadoBusca[]>(noMapa);
   const verListaRef = useRef(verLista);
   const areaRef = useRef(area);
   const detalheIdRef = useRef<string | null>(detalhe?.lugar.id ?? null);
   useEffect(() => {
-    resultadosRef.current = resultados;
+    resultadosRef.current = noMapa;
     verListaRef.current = verLista;
     areaRef.current = area;
     detalheIdRef.current = detalhe?.lugar.id ?? null;
@@ -391,6 +399,36 @@ export function BuscaMapa({
     router.push(`${pathname}?${u.toString()}`, { scroll: false });
   }
 
+  const [avisoLocal, setAvisoLocal] = useState("");
+  const [buscandoLocal, setBuscandoLocal] = useState(false);
+
+  /** "Perto de mim": leva o mapa até a pessoa e mostra os lugares dessa área. */
+  async function irParaPerto() {
+    const mapa = mapaRef.current;
+    if (!mapa) return;
+    setAvisoLocal("");
+    setBuscandoLocal(true);
+    try {
+      const { lat, lng } = await pedirLocalizacao();
+      mapa.jumpTo({ center: [lng, lat], zoom: 14, padding: margensDoMapa() });
+      const b = mapa.getBounds();
+      const u = new URLSearchParams(searchParams.toString());
+      for (const k of ["q", "lugar", "painel", "enviado"]) u.delete(k);
+      u.set(
+        "area",
+        [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()].map((x) => x.toFixed(4)).join(","),
+      );
+      u.set("f", "1");
+      if (usarPerfil) u.set("perfil", "1");
+      router.push(`${pathname}?${u.toString()}`, { scroll: false });
+    } catch (e) {
+      setAvisoLocal((e as Error).message);
+      setTimeout(() => setAvisoLocal(""), 8000);
+    } finally {
+      setBuscandoLocal(false);
+    }
+  }
+
   // Posição dos painéis: folha inferior no celular, coluna à esquerda no computador
   // (abaixo da navbar e da busca).
   const estiloPainel =
@@ -403,7 +441,7 @@ export function BuscaMapa({
       </p>
 
       {/* Título da página inicial (só para leitores de tela) */}
-      <h1 className="sr-only">Mapa Sensorial: buscar lugares em Porto Alegre</h1>
+      <h1 className="sr-only">Mapa Sensorial: buscar lugares no Brasil</h1>
 
       {/* Busca e filtros flutuando no topo (escondidos enquanto a janela de boas-vindas está aberta) */}
       {!sobreAberto && (
@@ -540,7 +578,7 @@ export function BuscaMapa({
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-2.5">
-            {resultados.length === 0 ? (
+            {resultados.length === 0 && externos.length === 0 ? (
               <div className="space-y-2 p-1">
                 <p>
                   {falhou
@@ -552,28 +590,66 @@ export function BuscaMapa({
                 </p>
               </div>
             ) : (
-              <ol ref={painel} className="space-y-2" aria-label="Resultados">
-                {resultados.map((r) => (
-                  <li
-                    key={r.id}
-                    data-id={r.id}
-                    onMouseEnter={() => setEmFoco(r.id)}
-                    onMouseLeave={() => setEmFoco(null)}
-                    onFocus={() => setEmFoco(r.id)}
-                    onBlur={() => setEmFoco(null)}
-                  >
-                    <CartaoLugar
-                      lugar={r}
-                      estimulos={estimulos}
-                      href={hrefCom(r.id)}
-                      selecionado={r.id === selecionado}
-                    />
-                  </li>
-                ))}
-              </ol>
+              <div className="space-y-4">
+                {resultados.length > 0 && (
+                  <ol ref={painel} className="space-y-2" aria-label="Resultados">
+                    {resultados.map((r) => (
+                      <li
+                        key={r.id}
+                        data-id={r.id}
+                        onMouseEnter={() => setEmFoco(r.id)}
+                        onMouseLeave={() => setEmFoco(null)}
+                        onFocus={() => setEmFoco(r.id)}
+                        onBlur={() => setEmFoco(null)}
+                      >
+                        <CartaoLugar
+                          lugar={r}
+                          estimulos={estimulos}
+                          href={hrefCom(r.id)}
+                          selecionado={r.id === selecionado}
+                        />
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                {/* Lugares do Brasil todo (OpenStreetMap) que ainda não estão na base */}
+                {externos.length > 0 && (
+                  <section aria-labelledby="titulo-externos" className="space-y-2">
+                    <div className="px-1">
+                      <h3 id="titulo-externos" className="text-[0.9375rem]">
+                        {resultados.length > 0 ? "Outros lugares no Brasil" : "Lugares no Brasil"}
+                      </h3>
+                      <p className="ajuda">Ainda não estão no Mapa Sensorial. Ao abrir, o lugar entra no mapa.</p>
+                    </div>
+                    <ol className="space-y-2">
+                      {externos.map((e) => (
+                        <li
+                          key={e.id}
+                          data-id={e.id}
+                          onMouseEnter={() => setEmFoco(e.id)}
+                          onMouseLeave={() => setEmFoco(null)}
+                          onFocus={() => setEmFoco(e.id)}
+                          onBlur={() => setEmFoco(null)}
+                        >
+                          <CartaoLugar lugar={e} estimulos={estimulos} href={e.href} externo Titulo="h4" />
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                )}
+              </div>
             )}
           </div>
         </section>
+      )}
+
+      {avisoLocal && !sobreAberto && (
+        <p
+          role="alert"
+          className="erro absolute inset-x-4 top-[7.75rem] z-20 mx-auto max-w-md text-sm shadow-suave sm:top-[8.25rem]"
+        >
+          {avisoLocal}
+        </p>
       )}
 
       {/* Botões flutuantes na parte inferior */}
@@ -586,6 +662,20 @@ export function BuscaMapa({
             className="botao pointer-events-auto shadow-suave lg:hidden"
           >
             Ver lista ({resultados.length})
+          </button>
+          <button
+            type="button"
+            onClick={irParaPerto}
+            disabled={buscandoLocal}
+            className="botao botao-secundario pointer-events-auto bg-superficie shadow-suave"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+              {/* Mira: símbolo comum de "minha localização" */}
+              <circle cx="12" cy="12" r="7" />
+              <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+            </svg>
+            {buscandoLocal ? "Localizando…" : "Perto de mim"}
           </button>
           <button
             ref={botaoSobre}

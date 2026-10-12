@@ -5,7 +5,7 @@ import { relatosParaEstatistica } from "@/lib/metricas";
 export const metadata: Metadata = {
   title: "Dados abertos",
   description:
-    "Estatísticas abertas dos relatos do Mapa Sensorial: quais estímulos sensoriais mais aparecem em cafés, restaurantes, shoppings e outros lugares de Porto Alegre.",
+    "Estatísticas abertas dos relatos do Mapa Sensorial: quais estímulos sensoriais mais aparecem em cafés, restaurantes, shoppings e outros lugares do Brasil.",
 };
 
 export default async function PaginaDados() {

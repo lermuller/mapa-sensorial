@@ -9,7 +9,7 @@ export default function LayoutPaginas({ children }: { children: React.ReactNode 
       <footer className="border-t border-borda px-4 py-6 text-sm text-texto-suave">
         <div className="mx-auto max-w-4xl space-y-1">
           <p>
-            Mapa Sensorial · Porto Alegre. Feito com a comunidade autista. Os relatos descrevem os
+            Mapa Sensorial · feito em Porto Alegre, para o Brasil todo. Feito com a comunidade autista. Os relatos descrevem os
             lugares, não as pessoas.
           </p>
           <nav aria-label="Rodapé" className="flex flex-wrap gap-x-4 gap-y-1">

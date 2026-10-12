@@ -44,7 +44,7 @@ export default function PaginaTermos() {
         <p>
           O Mapa Sensorial (“como é lá?”) é um site colaborativo e gratuito, mantido por{" "}
           {RESPONSAVEL}, em que pessoas contam como são os estímulos sensoriais (som, luz, cheiro,
-          lotação, visual e temperatura) de lugares de Porto Alegre, para que outras pessoas possam
+          lotação, visual e temperatura) de lugares do Brasil, para que outras pessoas possam
           se preparar antes de ir.
         </p>
         <p>
@@ -87,7 +87,7 @@ export default function PaginaTermos() {
             ilegal;
           </li>
           <li>não publicar propaganda, links ou relatos combinados para promover ou prejudicar um lugar;</li>
-          <li>adicionar apenas lugares que existem em Porto Alegre, com nome e localização corretos.</li>
+          <li>adicionar apenas lugares que existem no Brasil, com nome e localização corretos.</li>
         </ul>
         <p>
           Para evitar abusos, cada conta pode publicar até 1 relato por lugar por dia e até 30

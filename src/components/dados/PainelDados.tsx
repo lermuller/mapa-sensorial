@@ -98,7 +98,7 @@ export function PainelDados({
         <div className="relative overflow-hidden rounded-[28px] bg-destaque-suave p-6 sm:pr-48" style={{ border: "var(--linha) solid var(--borda)" }}>
           <h1 className="display text-4xl">Dados abertos</h1>
           <p className="mt-3">
-            O que a comunidade conta sobre os lugares de Porto Alegre, em números. Use à vontade em
+            O que a comunidade conta sobre os lugares do Brasil, em números. Use à vontade em
             estudos, trabalhos, conversas com lugares e políticas públicas, citando o Mapa Sensorial.
           </p>
           <p className="mt-2 text-sm">Atualizado em {atualizado}.</p>

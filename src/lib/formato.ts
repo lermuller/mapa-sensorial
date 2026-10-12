@@ -26,3 +26,14 @@ export function formatarQuando(data: string, hora: string | null): string {
 export function hojeEmPortoAlegre(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: FUSO });
 }
+
+/** "Rua X, 10 · Bairro · Cidade/UF", só com o que houver. */
+export function localDoLugar(l: {
+  endereco: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  uf: string | null;
+}): string {
+  const cidade = l.cidade ? (l.uf ? `${l.cidade}/${l.uf}` : l.cidade) : null;
+  return [l.endereco, l.bairro, cidade].filter(Boolean).join(" · ");
+}

@@ -16,7 +16,9 @@ describe("interpretarBusca", () => {
 
   it("separa o tipo do resto (bairro, nome)", () => {
     expect(interpretarBusca("café no Bom Fim")).toMatchObject({ termo: "bom fim" });
-    expect(interpretarBusca("museus em Porto Alegre")).toMatchObject({ termo: "" });
+    // A cidade continua na busca: os lugares guardam cidade e estado.
+    expect(interpretarBusca("museus em Porto Alegre")).toMatchObject({ termo: "porto alegre" });
+    expect(interpretarBusca("café Curitiba")).toMatchObject({ termo: "curitiba" });
     expect(interpretarBusca("Shopping Iguatemi")).toMatchObject({ termo: "iguatemi" });
   });
 

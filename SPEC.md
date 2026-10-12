@@ -6,7 +6,7 @@
 
 Pessoas autistas precisam de previsibilidade ao ir a um lugar e costumam ser sensíveis a estímulos visuais, sonoros, olfativos e outros. O Mapa Sensorial é um site colaborativo onde as pessoas relatam os estímulos sensoriais de cada lugar (e quando eles acontecem), para que outras possam se preparar ou escolher o melhor horário para ir.
 
-**Primeira cidade:** Porto Alegre (RS).
+**Abrangência:** Brasil. Porto Alegre (RS) tem a base inicial importada do OpenStreetMap; nas outras cidades, os lugares entram sob demanda: a busca completa os resultados com o OpenStreetMap (Photon) e o lugar é gravado na base ao ser aberto (dados confirmados no Nominatim). "Adicionar lugar" aceita qualquer ponto do Brasil; cidade e estado vêm do ponto marcado. O mapa começa em Porto Alegre e tem o botão "Perto de mim" (localização só no navegador).
 
 **Plataforma:** web, funcionando bem no celular. Não é um app de loja.
 

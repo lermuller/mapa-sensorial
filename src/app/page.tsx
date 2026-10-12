@@ -18,13 +18,16 @@ import {
   buscarLugares,
   LIMITE_BUSCA,
   obterDetalheLugar,
+  idsPorOsm,
   obterPerfil,
   relatosDoLugar,
+  type ResultadoExterno,
   type DetalheLugar,
   type Relato,
   type ResultadoBusca,
 } from "@/lib/dados";
 import { interpretarBusca, normalizar } from "@/lib/busca";
+import { buscarForaDaBase, type LugarExterno } from "@/lib/externo";
 import { areaParaTexto, lerParamsBusca, primeiro } from "@/lib/parametros";
 
 // Com um lugar aberto (?lugar=), o link compartilhado mostra a prévia dele.
@@ -66,7 +69,7 @@ export default async function Inicio(props: PageProps<"/">) {
       const porNome = await buscarLugares(base);
       const procurado = normalizar(params.termo);
       const bateNoNome = porNome.some((r) =>
-        normalizar(`${r.nome} ${r.endereco ?? ""} ${r.bairro ?? ""}`).includes(procurado),
+        normalizar(`${r.nome} ${r.endereco ?? ""} ${r.bairro ?? ""} ${r.cidade ?? ""}`).includes(procurado),
       );
       if (bateNoNome) return { lista: porNome, porTipo: false };
     }
@@ -81,12 +84,20 @@ export default async function Inicio(props: PageProps<"/">) {
     return { lista: await buscarLugares(base), porTipo: false };
   }
   let tipoUsado = false;
+  // Lugares do Brasil todo (OpenStreetMap) para completar a busca por texto. Só com texto além
+  // do tipo: "cafés" sozinho não diz onde; "café Curitiba" diz.
+  const buscarFora = params.termo && !(tipo && !restoDaBusca);
+  const centroArea = params.area
+    ? { lat: (params.area.sul + params.area.norte) / 2, lng: (params.area.oeste + params.area.leste) / 2 }
+    : undefined;
+  let achadosFora: LugarExterno[] = [];
   try {
     let busca: Awaited<ReturnType<typeof buscar>>;
-    [busca, detalhe, relatos] = await Promise.all([
+    [busca, detalhe, relatos, achadosFora] = await Promise.all([
       buscar(),
       lugarId ? obterDetalheLugar(lugarId) : Promise.resolve(null),
       lugarId && painel === "relatos" ? relatosDoLugar(lugarId) : Promise.resolve([]),
+      buscarFora ? buscarForaDaBase(params.termo, centroArea) : Promise.resolve([]),
     ]);
     resultados = busca.lista;
     tipoUsado = busca.porTipo;
@@ -95,10 +106,42 @@ export default async function Inicio(props: PageProps<"/">) {
     falhou = true;
   }
 
+  // Só completa quando a nossa base tem poucos resultados; tira o que já apareceu e respeita
+  // o tipo de lugar buscado e os filtros de tipo.
+  let externos: ResultadoExterno[] = [];
+  if (!falhou && resultados.length < 20 && achadosFora.length > 0) {
+    const jaListados = new Set(resultados.map((r) => r.osmId));
+    const candidatos = achadosFora
+      .filter((e) => !jaListados.has(e.osmId))
+      .filter((e) => params.categorias.length === 0 || params.categorias.includes(e.categoria))
+      .filter(
+        (e) =>
+          !(tipoUsado && tipoEmUso) ||
+          (e.categoria === tipoEmUso.categoria &&
+            (!tipoEmUso.subtipos || tipoEmUso.subtipos.includes(e.subtipo ?? ""))),
+      )
+      .slice(0, 10);
+    const naBase = await idsPorOsm(candidatos.map((e) => e.osmId)).catch(() => new Map<string, string>());
+    const q = encodeURIComponent(params.termo);
+    externos = candidatos.map((e) => ({
+      ...e,
+      id: e.osmId,
+      origem: "osm" as const,
+      totalRelatos: 0,
+      badges: { som: null, luz: null, cheiro: null, lotacao: null, visual: null, temperatura: null },
+      pontuacao: null,
+      href: naBase.has(e.osmId)
+        ? `/?q=${q}&f=1&lugar=${naBase.get(e.osmId)}`
+        : `/lugar-osm/${e.osmId}?q=${q}`,
+    }));
+  }
+
   const resumo = falhou
     ? "Não foi possível buscar agora."
     : resultados.length === 0
-      ? "Nenhum lugar encontrado."
+      ? externos.length > 0
+        ? `${externos.length} ${externos.length === 1 ? "lugar" : "lugares"} no Brasil para “${params.termo}”`
+        : "Nenhum lugar encontrado."
       : tipoUsado && tipoEmUso
         ? `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
             resultados.length === 1 ? "lugar" : "lugares"
@@ -251,6 +294,7 @@ export default async function Inicio(props: PageProps<"/">) {
           area={params.area}
           resumo={resumo}
           termoBusca={params.termo}
+          externos={externos}
           falhou={falhou}
           busca={busca}
           detalhe={detalhe}

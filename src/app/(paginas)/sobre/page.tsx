@@ -20,7 +20,7 @@ const SECOES = [
 const PASSOS: { titulo: string; texto: string; forma: FormaPadrao; rosto: Rosto }[] = [
   {
     titulo: "Busque um lugar",
-    texto: "Pelo nome, pelo bairro ou pelo tipo, como “cafés”, ou explorando o mapa de Porto Alegre.",
+    texto: "Pelo nome, pela cidade ou pelo tipo, como “café Curitiba”, ou explorando o mapa. Vale qualquer lugar do Brasil.",
     forma: "bolha",
     rosto: "curioso",
   },
@@ -249,7 +249,7 @@ export default function PaginaSobre() {
             <BotaoCompartilhar
               caminho="/"
               titulo="Mapa Sensorial · como é lá?"
-              texto="Conhece o Mapa Sensorial? Dá para ver como são o barulho, a luz, os cheiros e o movimento dos lugares de Porto Alegre antes de ir, com relatos da comunidade."
+              texto="Conhece o Mapa Sensorial? Dá para ver como são o barulho, a luz, os cheiros e o movimento dos lugares antes de ir, com relatos da comunidade."
               className="shrink-0"
             />
           </li>
