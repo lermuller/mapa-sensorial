@@ -53,7 +53,7 @@ function simbolo(id: string): string {
 /** Personagem como imagem (data URI), para usar em <img> dentro da ImageResponse. */
 export function personagemOg(forma: Forma, rosto: Rosto, branco = false): string {
   const p = simbolo(`p-${forma}-${rosto}`);
-  const f = p.match(/<use href="#(f-[a-z]+)"\/>/)?.[1];
+  const f = p.match(/<use href="#(f-[a-z]+)"/)?.[1];
   const defs = (f ? simbolo(f) : "") + p;
   const cores = defs
     .replace(/var\(--c-([a-z]+)\)/g, (_, c: string) =>
