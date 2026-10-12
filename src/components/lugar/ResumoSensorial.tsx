@@ -4,10 +4,10 @@ import {
   calcularFaixas,
   DIAS_FAIXA,
   melhorHorario,
+  NOME_PERIODO,
   PERIODOS_FAIXA,
   ROTULO_DIA,
   ROTULO_PERIODO_CURTO,
-  type PeriodoFaixa,
   type Badge,
   type RelatoCalculo,
 } from "@/lib/calculo";
@@ -20,11 +20,6 @@ import {
   type Estimulo,
 } from "@/lib/estimulos";
 
-const NOME_PERIODO: Record<PeriodoFaixa, string> = {
-  manha: "Manhã",
-  tarde: "Tarde",
-  noite: "Noite",
-};
 
 /** Bloco da grade: fundo na cor do estímulo, nível grande e personagem branco no canto. */
 function BlocoEstimulo({ estimulo, badge }: { estimulo: Estimulo; badge: Badge | null }) {

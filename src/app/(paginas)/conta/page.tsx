@@ -9,22 +9,27 @@ import { obterCadastro, relatosDoUsuario } from "@/lib/dados";
 import { formatarData } from "@/lib/formato";
 import { primeiro } from "@/lib/parametros";
 import { criarClienteServidor, usuarioAtualId } from "@/lib/supabase/server";
+import { PainelMetricas } from "@/components/metricas/PainelMetricas";
+import { metricasInternas } from "@/lib/metricas";
 import { FormPerfil } from "../perfil/FormPerfil";
 import { CabecalhoConta } from "./CabecalhoConta";
 import { FormApagarConta } from "./Formularios";
 
 export const metadata: Metadata = { title: "Minha conta" };
 
-const ABAS = [
-  { id: "perfil", rotulo: "Perfil" },
-  { id: "relatos", rotulo: "Meus relatos" },
-] as const;
+type Aba = "perfil" | "relatos" | "metricas";
+
+const ABAS: { id: Aba; rotulo: string; href: string; soModeracao?: boolean }[] = [
+  { id: "perfil", rotulo: "Perfil", href: "/conta" },
+  { id: "relatos", rotulo: "Meus relatos", href: "/conta?aba=relatos" },
+  { id: "metricas", rotulo: "Métricas", href: "/conta?aba=metricas", soModeracao: true },
+];
 
 export default async function PaginaConta(props: PageProps<"/conta">) {
   const usuarioId = await usuarioAtualId();
   if (!usuarioId) redirect("/entrar?voltar=/conta");
   const sp = await props.searchParams;
-  const aba = primeiro(sp.aba) === "relatos" ? "relatos" : "perfil";
+  const abaPedida = primeiro(sp.aba);
   const perfilApagado = primeiro(sp.apagado) === "1";
 
   const supabase = await criarClienteServidor();
@@ -35,6 +40,10 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
     ehModeradora(),
   ]);
   const email = (claims?.claims?.email as string | undefined) ?? "";
+  // A aba Métricas só existe para a moderação; para as outras pessoas, volta ao perfil.
+  const aba: Aba =
+    abaPedida === "relatos" ? "relatos" : abaPedida === "metricas" && moderadora ? "metricas" : "perfil";
+  const metricas = aba === "metricas" ? await metricasInternas() : null;
 
   return (
     <div className="space-y-6">
@@ -58,10 +67,10 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
       <div className="grid gap-4 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-6">
         {/* Abas: coluna à esquerda no computador, linha no celular */}
         <nav aria-label="Seções da conta" className="flex gap-1 md:flex-col">
-          {ABAS.map((a) => (
+          {ABAS.filter((a) => !a.soModeracao || moderadora).map((a) => (
             <Link
               key={a.id}
-              href={a.id === "perfil" ? "/conta" : "/conta?aba=relatos"}
+              href={a.href}
               aria-current={aba === a.id ? "page" : undefined}
               className={`chip justify-between md:w-full md:rounded-2xl md:px-4 md:py-2.5 ${
                 aba === a.id ? "bg-destaque-suave" : "border-transparent bg-transparent"
@@ -110,6 +119,19 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
                 <FormApagarConta />
               </section>
             </>
+          ) : aba === "metricas" && metricas ? (
+            <section aria-labelledby="titulo-metricas" className="space-y-4">
+              <div className="space-y-1">
+                <h2 id="titulo-metricas" className="text-xl">
+                  Métricas da plataforma
+                </h2>
+                <p className="ajuda">
+                  Só contagens, sem dados pessoais nem perfis sensoriais. Os números públicos estão
+                  nos <Link href="/dados">dados abertos</Link>.
+                </p>
+              </div>
+              <PainelMetricas m={metricas} />
+            </section>
           ) : (
             <section aria-labelledby="titulo-relatos" className="space-y-3">
               <h2 id="titulo-relatos" className="text-xl">

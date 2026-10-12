@@ -126,6 +126,12 @@ Os relatos "é sempre assim" entram em todos os horários. Os relatos com horár
 
 O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consentido_em` preenchido (regra no banco).
 
+### Métricas e dados abertos
+
+- **/metricas** (só moderação, tabela `moderadores`): relatos (total, 7 e 30 dias, por semana, com “O que esperar”), contas (novas, que entraram e que contribuíram nos últimos 30 dias, % que já relatou), lugares avaliados, adicionados pela comunidade e denúncias abertas. Só contagens; o perfil sensorial não entra.
+- **/dados** (público) e **/dados/csv**: por tipo de lugar (cafés, restaurantes e lanchonetes separados pelo subtipo), a parte das avaliações “alto” de cada estímulo e a variação por dia e horário. Só níveis, tipo, data e horário dos relatos no ar; sem nomes, contas, textos ou perfis. Números com menos de 5 avaliações não aparecem. Licença CC BY 4.0.
+- Visitas e páginas vistas ainda não são medidas (exigiria um serviço de analytics e atualizar a política de privacidade).
+
 ## Fora do MVP (próximas versões)
 
 - Zonas dentro do lugar (praça de alimentação, banheiro, estacionamento…)

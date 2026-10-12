@@ -12,6 +12,7 @@ export const metadata: Metadata = { title: "Sobre o projeto" };
 const SECOES = [
   { id: "motivacao", rotulo: "Motivação" },
   { id: "como-funciona", rotulo: "Como funciona" },
+  { id: "dados-abertos", rotulo: "Dados abertos" },
   { id: "como-contribuir", rotulo: "Como contribuir" },
   { id: "quem-faz", rotulo: "Quem faz" },
 ] as const;
@@ -177,6 +178,25 @@ export default function PaginaSobre() {
               Montar meu perfil sensorial
             </Link>
           </div>
+        </div>
+      </Secao>
+
+      <Secao id="dados-abertos" titulo="Dados abertos">
+        <div
+          className="relative flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-3xl bg-destaque-suave p-5 sm:pr-36"
+          style={{ border: "var(--linha) solid var(--borda)" }}
+        >
+          <p className="min-w-0 flex-1 basis-64">
+            Os relatos também viram números abertos para a comunidade: quais estímulos mais
+            aparecem em cafés, restaurantes, shoppings e outros lugares, e como mudam ao longo da
+            semana. Dá para usar em estudos, trabalhos e conversas com os lugares.
+          </p>
+          <LinkSeta href="/dados">Ver os dados abertos</LinkSeta>
+          <Personagem
+            forma="lotacao"
+            rosto="curioso"
+            className="pointer-events-none absolute -bottom-6 -right-4 hidden h-28 w-28 rotate-[-8deg] sm:block"
+          />
         </div>
       </Secao>
 

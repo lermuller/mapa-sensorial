@@ -143,6 +143,11 @@ export default function PaginaPrivacidade() {
                 base="Legítimo interesse em manter o site seguro e confiável (art. 7º, IX)"
               />
               <Finalidade
+                uso="Medir o uso do site (contagens internas) e publicar estatísticas abertas sobre os lugares"
+                dados="Níveis, tipo de lugar, data e horário dos relatos; datas de criação e de último acesso das contas"
+                base="Legítimo interesse em avaliar e melhorar o projeto e em apoiar estudos (art. 7º, IX)"
+              />
+              <Finalidade
                 uso="Manter o site funcionando e investigar falhas ou ataques"
                 dados="Dados técnicos"
                 base="Legítimo interesse (art. 7º, IX)"
@@ -186,6 +191,7 @@ export default function PaginaPrivacidade() {
             entra no endereço (URL) das páginas.
           </li>
           <li>Não é compartilhado com ninguém, além do serviço de banco de dados (seção 6).</li>
+          <li>Não entra nas estatísticas internas nem nos dados abertos do site.</li>
           <li>
             Você pode <strong>retirar a autorização a qualquer momento</strong>, apagando o perfil em{" "}
             <Link href="/perfil">Meu perfil sensorial</Link> ou na página da sua conta. O perfil e o
@@ -208,6 +214,14 @@ export default function PaginaPrivacidade() {
           <strong>Ninguém mais vê:</strong> seu e-mail, seu nome, seu perfil sensorial, as denúncias
           que você fez e quais lugares você adicionou. Pessoas da moderação podem ver as denúncias e
           os relatos denunciados para decidir sobre eles.
+        </p>
+        <p>
+          Também publicamos <Link href="/dados">dados abertos</Link>: estatísticas somadas dos
+          relatos, como “em cafés, som alto aparece em X% das avaliações”. Elas usam só os níveis,
+          o tipo de lugar, a data e o horário dos relatos, sem nomes, contas, textos ou perfis
+          sensoriais, e números com menos de 5 avaliações não aparecem. Para acompanhar o projeto,
+          quem o mantém vê também contagens internas, como o número de contas e de relatos por
+          semana, sem identificar ninguém.
         </p>
         <p>
           Não coloque nos textos dos relatos informações pessoais suas ou de outras pessoas. O site

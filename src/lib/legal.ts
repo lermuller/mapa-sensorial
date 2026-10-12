@@ -4,7 +4,7 @@
 export const RESPONSAVEL = "Léo Muller";
 
 /** Data em que a versão atual dos documentos passou a valer. */
-export const VIGENCIA = "10 de outubro de 2026";
+export const VIGENCIA = "11 de outubro de 2026";
 
 /** Idade mínima para criar conta. */
 export const IDADE_MINIMA = 18;

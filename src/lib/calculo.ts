@@ -27,6 +27,13 @@ export const ROTULO_DIA: Record<DiaFaixa, string> = {
   util: "Dia útil",
   fds: "Fim de semana",
 };
+/** Nome curto do período, sem o horário. */
+export const NOME_PERIODO: Record<PeriodoFaixa, string> = {
+  manha: "Manhã",
+  tarde: "Tarde",
+  noite: "Noite",
+};
+
 export const ROTULO_PERIODO: Record<PeriodoFaixa, string> = {
   manha: "Manhã (6h–12h)",
   tarde: "Tarde (12h–18h)",
@@ -77,7 +84,7 @@ export function pesoRecencia(r: RelatoCalculo, agora: Date): number | null {
 }
 
 /** Faixa de um relato com horário; null para "é sempre assim" ou madrugada (0h–6h). */
-export function faixaDoRelato(r: RelatoCalculo): Faixa | null {
+export function faixaDoRelato(r: Pick<RelatoCalculo, "sempreAssim" | "data" | "hora">): Faixa | null {
   if (r.sempreAssim || !r.data || !r.hora) return null;
   const hora = Number(r.hora.slice(0, 2));
   let periodo: PeriodoFaixa;

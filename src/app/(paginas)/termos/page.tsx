@@ -127,6 +127,11 @@ export default function PaginaTermos() {
           publicado.
         </p>
         <p>
+          Os níveis informados nos relatos também entram, somados e sem identificar ninguém, nos{" "}
+          <Link href="/dados">dados abertos</Link> do site, que qualquer pessoa pode usar sob a
+          licença Creative Commons Atribuição 4.0 (CC BY 4.0), citando o Mapa Sensorial.
+        </p>
+        <p>
           Você pode editar ou apagar seus relatos a qualquer momento. Ao apagar um relato ou a
           conta, os relatos saem do site e deixam de contar nos resumos.
         </p>

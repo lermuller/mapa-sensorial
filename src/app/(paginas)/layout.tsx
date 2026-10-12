@@ -14,6 +14,7 @@ export default function LayoutPaginas({ children }: { children: React.ReactNode 
           </p>
           <nav aria-label="Rodapé" className="flex flex-wrap gap-x-4 gap-y-1">
             <Link href="/sobre">Sobre o projeto</Link>
+            <Link href="/dados">Dados abertos</Link>
             <Link href="/termos">Termos de uso</Link>
             <Link href="/privacidade">Política de privacidade</Link>
           </nav>
