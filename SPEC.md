@@ -126,6 +126,13 @@ Os relatos "é sempre assim" entram em todos os horários. Os relatos com horár
 
 O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consentido_em` preenchido (regra no banco).
 
+### Problemas em lugares
+
+- Botão "Informar um problema" no lugar (com conta): não existe ou fechou, local errado, nome ou tipo errado, repetido, ofensivo ou propaganda, outro. Cada pessoa informa cada motivo uma vez por lugar.
+- Regras automáticas: **ofensivo** com 2 pessoas diferentes → o lugar sai do ar até a revisão; **não existe ou fechou** com 3 pessoas → aviso "Pode ter fechado" (o lugar continua visível). O resto vai para a fila de /moderacao (seção Lugares: manter, corrigir, arquivar). Arquivar esconde sem apagar.
+- Ao adicionar: aviso "Já está no mapa?" com os lugares a até ~150 m; mesmo nome a menos de ~150 m é barrado; filtro de ofensas no nome; até 5 lugares por conta por dia.
+- Quem adicionou pode corrigir ou apagar o lugar enquanto ele não tiver relatos de outras pessoas; a moderação pode sempre.
+
 ### Métricas e dados abertos
 
 - **/metricas** (só moderação, tabela `moderadores`): relatos (total, 7 e 30 dias, por semana, com “O que esperar”), contas (novas, que entraram e que contribuíram nos últimos 30 dias, % que já relatou), lugares avaliados, adicionados pela comunidade e denúncias abertas. Só contagens; o perfil sensorial não entra.

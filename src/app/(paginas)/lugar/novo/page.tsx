@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { usuarioAtualId } from "@/lib/supabase/server";
+import { criarLugar } from "@/lib/acoes/lugares";
 import { FormLugar } from "./FormLugar";
 import { VoltarAoMapa } from "@/components/LinkSeta";
 
@@ -17,7 +18,7 @@ export default async function PaginaNovoLugar() {
         Antes, <Link href="/">busque pelo nome</Link> para ver se o lugar já existe. Vale qualquer
         lugar do Brasil: marque no mapa e a cidade é preenchida sozinha.
       </p>
-      <FormLugar />
+      <FormLugar acao={criarLugar} />
     </div>
   );
 }

@@ -106,7 +106,18 @@ export default function PaginaTermos() {
             diferentes fica oculto até ser revisado.
           </li>
           <li>
-            A moderação pode manter, ocultar ou remover relatos e lugares que não sigam estes termos.
+            Qualquer pessoa com conta pode informar um problema num lugar (fechou, local errado,
+            nome errado, repetido, ofensivo). Um lugar apontado como ofensivo por duas pessoas
+            diferentes sai do ar até a revisão; apontado como fechado por três pessoas, ganha o aviso
+            “Pode ter fechado”.
+          </li>
+          <li>
+            Quem adicionou um lugar pode corrigi-lo ou apagá-lo enquanto ele não tiver relatos de
+            outras pessoas. Cada conta pode adicionar até 5 lugares por dia.
+          </li>
+          <li>
+            A moderação pode manter, corrigir, ocultar, arquivar ou remover relatos e lugares que não
+            sigam estes termos.
           </li>
           <li>
             Contas que violem estes termos de forma grave ou repetida podem ser suspensas ou

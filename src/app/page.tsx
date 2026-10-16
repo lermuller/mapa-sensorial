@@ -12,6 +12,7 @@ import { FormRelato } from "@/components/FormRelato";
 import { ItemRelato } from "@/components/lugar/ItemRelato";
 import { PainelLugar, type HrefsPainel } from "@/components/lugar/PainelLugar";
 import { SubpainelLugar } from "@/components/lugar/SubpainelLugar";
+import { podeEditarLugar } from "@/lib/acoes/lugares";
 import { criarRelato } from "@/lib/acoes/relatos";
 import { hojeEmPortoAlegre } from "@/lib/formato";
 import { usuarioAtualId } from "@/lib/supabase/server";
@@ -245,6 +246,7 @@ export default async function Inicio(props: PageProps<"/">) {
       </SubpainelLugar>
     );
   } else if (detalhe) {
+    const podeEditar = usuarioId ? await podeEditarLugar(detalhe.lugar.id) : false;
     conteudoLugar = (
       <PainelLugar
         detalhe={detalhe}
@@ -252,6 +254,7 @@ export default async function Inicio(props: PageProps<"/">) {
         enviado={primeiro(sp.enviado) === "1"}
         perfil={perfilEmUso}
         logado={!!usuarioId}
+        podeEditar={podeEditar}
       />
     );
   }

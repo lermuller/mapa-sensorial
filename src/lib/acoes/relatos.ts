@@ -2,10 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { CATEGORIAS, ESTIMULOS } from "@/lib/estimulos";
+import { ESTIMULOS } from "@/lib/estimulos";
 import { hojeEmPortoAlegre } from "@/lib/formato";
 import { mensagemDoProblema, problemaNoTexto } from "@/lib/moderacao";
-import { enderecoDoPonto } from "@/lib/externo";
 import { criarClienteServidor, usuarioAtualId } from "@/lib/supabase/server";
 
 export type EstadoForm = { erro?: string; ok?: boolean };
@@ -178,56 +177,3 @@ export async function denunciarRelato(
   return { ok: true };
 }
 
-const esquemaLugar = z.object({
-  nome: z.string().trim().min(1, "Digite o nome do lugar.").max(200),
-  categoria: z.enum(CATEGORIAS, { message: "Escolha o tipo de lugar." }),
-  endereco: textoOpcional(300),
-  bairro: textoOpcional(100),
-  // Retângulo do Brasil; cidade e estado vêm do ponto marcado (enderecoDoPonto).
-  lat: z.coerce.number({ message: "Marque o local no mapa." }).min(-34).max(6),
-  lng: z.coerce.number({ message: "Marque o local no mapa." }).min(-74).max(-34),
-});
-
-export async function criarLugar(_anterior: EstadoForm, form: FormData): Promise<EstadoForm> {
-  const usuarioId = await usuarioAtualId();
-  if (!usuarioId) redirect("/entrar?voltar=/lugar/novo");
-  const campo = (n: string) => String(form.get(n) ?? "");
-  if (!campo("lat") || !campo("lng")) return { erro: "Marque o local no mapa." };
-  const r = esquemaLugar.safeParse({
-    nome: campo("nome"),
-    categoria: campo("categoria"),
-    endereco: campo("endereco"),
-    bairro: campo("bairro"),
-    lat: campo("lat"),
-    lng: campo("lng"),
-  });
-  if (!r.success) {
-    const problema = r.error.issues[0];
-    if (problema?.path[0] === "lat" || problema?.path[0] === "lng") {
-      return { erro: "O local marcado fica fora do Brasil. Por enquanto, só aceitamos lugares do Brasil." };
-    }
-    return { erro: problema?.message ?? "Confira os campos." };
-  }
-
-  // Cidade, estado e (se a pessoa não informou) bairro do ponto marcado. Se o serviço não
-  // responder, o lugar é criado sem eles.
-  const local = await enderecoDoPonto(r.data.lat, r.data.lng);
-  const supabase = await criarClienteServidor();
-  const { data, error } = await supabase
-    .from("lugares")
-    .insert({
-      ...r.data,
-      bairro: r.data.bairro ?? local?.bairro ?? null,
-      cidade: local?.cidade ?? null,
-      uf: local?.uf ?? null,
-      origem: "usuario",
-      criado_por: usuarioId,
-    })
-    .select("id")
-    .single();
-  if (error || !data) {
-    console.error(error);
-    return { erro: "Não foi possível adicionar o lugar. Tente de novo." };
-  }
-  redirect(`/lugar/${data.id}`);
-}

@@ -19,8 +19,16 @@ export async function GET(req: Request, ctx: { params: Promise<{ tipo: string; i
   };
 
   const admin = criarClienteAdmin();
-  const existente = await admin.from("lugares").select("id").eq("osm_id", osmId).maybeSingle();
-  if (existente.data) redirect(destino(existente.data.id));
+  const existente = await admin
+    .from("lugares")
+    .select("id, oculto, arquivado")
+    .eq("osm_id", osmId)
+    .maybeSingle();
+  if (existente.data) {
+    // Arquivado ou fora do ar pela moderação: não reabre; volta para a busca.
+    if (existente.data.oculto || existente.data.arquivado) redirect(q ? `/?q=${encodeURIComponent(q)}&f=1` : "/");
+    redirect(destino(existente.data.id));
+  }
 
   const lugar = await lugarDoOsm(osmId);
   if (!lugar) redirect(q ? `/?q=${encodeURIComponent(q)}&f=1` : "/");

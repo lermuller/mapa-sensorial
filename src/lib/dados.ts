@@ -28,6 +28,8 @@ export type Lugar = {
   lat: number;
   lng: number;
   origem: "osm" | "usuario";
+  /** 3 pessoas ou mais disseram que o lugar não existe ou fechou. */
+  talvez_fechado?: boolean;
 };
 
 export type RelatoLinha = {
@@ -148,6 +150,7 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
         cidade: l.cidade,
         uf: l.uf,
         osmId: l.osm_id,
+        talvez_fechado: l.talvez_fechado,
         lat: l.lat,
         lng: l.lng,
         origem: l.origem,
@@ -193,7 +196,7 @@ export async function obterLugar(id: string): Promise<Lugar | null> {
   const supabase = await criarClienteServidor();
   const { data, error } = await supabase
     .from("lugares")
-    .select("id, nome, categoria, endereco, bairro, cidade, uf, lat, lng, origem")
+    .select("id, nome, categoria, endereco, bairro, cidade, uf, lat, lng, origem, talvez_fechado")
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;

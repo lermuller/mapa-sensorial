@@ -69,6 +69,9 @@ export function CartaoLugar({
         <p className="text-sm text-texto">
           {[ROTULO_CATEGORIA[lugar.categoria], localDoLugar(lugar)].filter(Boolean).join(" · ")}
         </p>
+        {lugar.talvez_fechado && (
+          <p className="text-[0.8125rem] font-bold">Pode ter fechado</p>
+        )}
         {externo ? (
           <p className="text-[0.8125rem] italic text-texto-suave">Ainda sem relatos. Seja a primeira pessoa a contar.</p>
         ) : lugar.totalRelatos === 0 ? (

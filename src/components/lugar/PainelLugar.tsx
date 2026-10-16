@@ -28,6 +28,7 @@ export function PainelLugar({
   enviado = false,
   perfil = [],
   logado = false,
+  podeEditar = false,
 }: {
   detalhe: DetalheLugar;
   hrefs: HrefsPainel;
@@ -36,6 +37,8 @@ export function PainelLugar({
   /** Perfil sensorial em uso. */
   perfil?: Estimulo[];
   logado?: boolean;
+  /** Quem adicionou o lugar (sem relatos de outras pessoas) ou a moderação. */
+  podeEditar?: boolean;
 }) {
   const { lugar } = detalhe;
   return (
@@ -69,6 +72,13 @@ export function PainelLugar({
           </Link>
         </div>
       </header>
+
+      {lugar.talvez_fechado && (
+        <p className="erro text-sm">
+          <strong>Pode ter fechado.</strong> Algumas pessoas disseram que este lugar não existe mais
+          ou fechou. Confira antes de ir.
+        </p>
+      )}
 
       {enviado && (
         <p className="sucesso" role="status">
@@ -109,6 +119,26 @@ export function PainelLugar({
           Ver {detalhe.totalRelatos === 1 ? "o relato" : `os ${detalhe.totalRelatos} relatos`}
         </LinkSeta>
       )}
+
+      {/* Algo errado com o lugar: nome, local, fechou, repetido */}
+      <div className="-ml-3 flex flex-wrap gap-1 border-t border-borda pt-3">
+        {podeEditar && (
+          <Link href={`/lugar/${lugar.id}/editar`} className="botao-terciario">
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+              {/* Lápis */}
+              <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+            </svg>
+            <TextoAoCarregar>Corrigir lugar</TextoAoCarregar>
+          </Link>
+        )}
+        <Link href={`/lugar/${lugar.id}/problema`} className="botao-terciario">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            {/* Bandeira */}
+            <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
+          </svg>
+          <TextoAoCarregar>Informar um problema</TextoAoCarregar>
+        </Link>
+      </div>
     </article>
   );
 }

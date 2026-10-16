@@ -90,7 +90,8 @@ export default function PaginaPrivacidade() {
             registro de qual conta o adicionou.
           </li>
           <li>
-            <strong>Denúncias:</strong> o motivo informado e qual conta fez a denúncia.
+            <strong>Denúncias e problemas informados:</strong> o motivo e o detalhe que você
+            escreveu ao denunciar um relato ou informar um problema num lugar, e qual conta enviou.
           </li>
           <li>
             <strong>Dados técnicos:</strong> endereço IP, tipo de navegador e horários de acesso,

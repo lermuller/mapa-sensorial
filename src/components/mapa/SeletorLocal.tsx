@@ -5,10 +5,29 @@ import { useEffect, useRef, useState } from "react";
 import { carregarMapLibre, corDoTema, criarMapa } from "./base";
 import { pedirLocalizacao } from "./localizacao";
 
-/** Mapa para marcar a localização de um lugar novo. Grava lat/lng em campos ocultos. */
-export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: string; nomeLng?: string }) {
+type Ponto = { lat: number; lng: number };
+
+/** Mapa para marcar a localização de um lugar. Grava lat/lng em campos ocultos. */
+export function SeletorLocal({
+  nomeLat = "lat",
+  nomeLng = "lng",
+  inicial = null,
+  aoMudar,
+}: {
+  nomeLat?: string;
+  nomeLng?: string;
+  /** Ponto já marcado (ao corrigir um lugar). */
+  inicial?: Ponto | null;
+  /** Avisa quando a pessoa marca outro ponto (ex.: para procurar lugares repetidos por perto). */
+  aoMudar?: (p: Ponto) => void;
+}) {
   const container = useRef<HTMLDivElement>(null);
-  const [ponto, setPonto] = useState<{ lat: number; lng: number } | null>(null);
+  const [ponto, setPonto] = useState<Ponto | null>(inicial);
+  const inicialRef = useRef(inicial);
+  const aoMudarRef = useRef(aoMudar);
+  useEffect(() => {
+    aoMudarRef.current = aoMudar;
+  });
   const mapaRef = useRef<MapaLibre | null>(null);
   const [aviso, setAviso] = useState("");
 
@@ -27,19 +46,27 @@ export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: s
     let mapa: MapaLibre | null = null;
     let marcador: Marker | null = null;
     const controle = new AbortController();
-    criarMapa(container.current!, controle.signal)
+    const comeco = inicialRef.current;
+    criarMapa(
+      container.current!,
+      controle.signal,
+      comeco ? { center: [comeco.lng, comeco.lat], zoom: 16 } : {},
+    )
       .then(async (m) => {
         if (!m) return;
         mapa = m;
         mapaRef.current = m;
         const { Marker } = await carregarMapLibre();
+        const cor = corDoTema("--destaque", "#2f6461");
+        if (comeco) marcador = new Marker({ color: cor }).setLngLat([comeco.lng, comeco.lat]).addTo(m);
         m.on("click", (e) => {
           const { lat, lng } = e.lngLat;
           // A posição vem antes do addTo: sem ela, o MapLibre falha ao desenhar o pin, que fica
           // preso no canto, e o mapa passa a responder mal ao zoom e ao arraste.
           if (marcador) marcador.setLngLat([lng, lat]);
-          else marcador = new Marker({ color: corDoTema("--destaque", "#2f6461") }).setLngLat([lng, lat]).addTo(m);
+          else marcador = new Marker({ color: cor }).setLngLat([lng, lat]).addTo(m);
           setPonto({ lat, lng });
+          aoMudarRef.current?.({ lat, lng });
         });
       })
       .catch(console.error);
