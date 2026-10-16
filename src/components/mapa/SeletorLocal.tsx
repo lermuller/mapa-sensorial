@@ -35,8 +35,10 @@ export function SeletorLocal({ nomeLat = "lat", nomeLng = "lng" }: { nomeLat?: s
         const { Marker } = await carregarMapLibre();
         m.on("click", (e) => {
           const { lat, lng } = e.lngLat;
-          marcador ??= new Marker({ color: corDoTema("--destaque", "#2f6461") }).addTo(m);
-          marcador.setLngLat([lng, lat]);
+          // A posição vem antes do addTo: sem ela, o MapLibre falha ao desenhar o pin, que fica
+          // preso no canto, e o mapa passa a responder mal ao zoom e ao arraste.
+          if (marcador) marcador.setLngLat([lng, lat]);
+          else marcador = new Marker({ color: corDoTema("--destaque", "#2f6461") }).setLngLat([lng, lat]).addTo(m);
           setPonto({ lat, lng });
         });
       })
