@@ -36,7 +36,7 @@ Lista fixa de estímulos usada nos relatos, nos badges e nos filtros:
 
 ### 1. Busca
 
-- Busca por **nome do lugar**, **endereço/bairro** ou **tipo de lugar** ("cafés", "museus", "posto de saúde"; ver `src/lib/busca.ts`). A palavra de tipo vira filtro pelo subtipo do OpenStreetMap e o resto continua como texto ("café no Bom Fim"). Tolera erros de digitação ("brisa forneria"). Sem resultado por tipo, busca o texto inteiro.
+- Busca por **nome do lugar**, **endereço/bairro** ou **tipo de lugar** ("cafés", "museus", "posto de saúde"; ver `src/lib/busca.ts`). A palavra de tipo vira filtro pelo subtipo do OpenStreetMap e o resto continua como texto ("café no Bom Fim"). Tolera erros de digitação ("brisa forneria"). Sem resultado por tipo, busca o texto inteiro. Se o texto for um bairro ou cidade ("Moinhos de Vento", "café no Bom Fim", "Batel Curitiba"), mostra os lugares dentro da área dele (Photon), porque muitos lugares do OSM não têm o bairro preenchido. Sugestões enquanto digita (rota /sugestoes): tipo de lugar, lugares da base e bairros/cidades. Carregamentos têm aviso estático ("Abrindo…", "Buscando…", ampulheta no lugar da seta), sem animação.
 - Resultado em **mapa + lista**, alternáveis. No celular, a lista é a visão padrão.
 
 ### 2. Filtros

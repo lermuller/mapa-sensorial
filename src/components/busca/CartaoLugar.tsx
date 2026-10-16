@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { SeloAbrindo } from "@/components/Carregando";
 import { BadgeSensorial } from "@/components/BadgeSensorial";
 import { IconeCategoria } from "@/components/IconeCategoria";
 import type { ResultadoBusca } from "@/lib/dados";
@@ -25,6 +29,13 @@ export function CartaoLugar({
   externo?: boolean;
   Titulo?: "h3" | "h4";
 }) {
+  // Lugar de fora da base: a página recarrega inteira; o aviso fica até ela trocar.
+  const [abrindo, setAbrindo] = useState(false);
+  useEffect(() => {
+    const voltou = (e: PageTransitionEvent) => e.persisted && setAbrindo(false);
+    window.addEventListener("pageshow", voltou);
+    return () => window.removeEventListener("pageshow", voltou);
+  }, []);
   // Os estímulos da busca (filtros e perfil) aparecem primeiro.
   const ordem = [...estimulos, ...ESTIMULOS.filter((e) => !estimulos.includes(e))];
   const badges = ordem.map((e) => lugar.badges[e]).filter((b) => b !== null);
@@ -40,12 +51,18 @@ export function CartaoLugar({
         <Titulo className="text-base leading-snug">
           {/* O link cobre o card todo (after:inset-0) */}
           {externo ? (
-            <a href={href} rel="nofollow" className={CLASSE_LINK}>
+            <a href={href} rel="nofollow" className={CLASSE_LINK} onClick={() => setAbrindo(true)}>
               {lugar.nome}
+              {abrindo && (
+                <span role="status" className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-texto px-2.5 py-1 text-xs font-bold text-fundo">
+                  Abrindo…
+                </span>
+              )}
             </a>
           ) : (
             <Link href={href} scroll={false} className={CLASSE_LINK}>
               {lugar.nome}
+              <SeloAbrindo />
             </Link>
           )}
         </Titulo>

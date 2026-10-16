@@ -3,7 +3,8 @@
 import type { GeoJSONSource, Map as MapaLibre, PaddingOptions } from "maplibre-gl";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type KeyboardEvent, type ReactNode } from "react";
+import { XDoLink } from "@/components/Carregando";
 import { LinkSeta } from "@/components/LinkSeta";
 import { criarMapa } from "@/components/mapa/base";
 import { pedirLocalizacao } from "@/components/mapa/localizacao";
@@ -152,8 +153,11 @@ export function BuscaMapa({
   }, [termoBusca]);
 
   const abrirLugarRef = useRef<(id: string) => void>(() => {});
+  // Clique num ponto do mapa: navegação em transição, para mostrar o aviso "Abrindo lugar…".
+  const [abrindoDoMapa, iniciarAberturaDoMapa] = useTransition();
   useEffect(() => {
-    abrirLugarRef.current = (id: string) => router.push(hrefCom(id), { scroll: false });
+    abrirLugarRef.current = (id: string) =>
+      iniciarAberturaDoMapa(() => router.push(hrefCom(id), { scroll: false }));
   });
 
   // Cria o mapa uma vez.
@@ -530,9 +534,7 @@ export function BuscaMapa({
             title="Fechar"
             className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-borda bg-fundo text-texto"
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
+            <XDoLink />
           </Link>
         </section>
       )}
@@ -570,9 +572,7 @@ export function BuscaMapa({
                   title="Limpar busca"
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-borda bg-fundo text-texto"
                 >
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden="true">
-                    <path d="M6 6l12 12M18 6L6 18" />
-                  </svg>
+                  <XDoLink />
                 </Link>
               )}
             </div>
@@ -641,6 +641,15 @@ export function BuscaMapa({
             )}
           </div>
         </section>
+      )}
+
+      {abrindoDoMapa && (
+        <p
+          role="status"
+          className="pointer-events-none absolute left-1/2 top-[7.75rem] z-20 -translate-x-1/2 rounded-full bg-texto px-4 py-2 text-sm font-bold text-fundo shadow-suave sm:top-[8.25rem]"
+        >
+          Abrindo lugar…
+        </p>
       )}
 
       {avisoLocal && !sobreAberto && (

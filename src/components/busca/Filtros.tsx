@@ -2,6 +2,7 @@ import { DIAS_FAIXA, PERIODOS_FAIXA, ROTULO_DIA, ROTULO_PERIODO } from "@/lib/ca
 import Form from "next/form";
 import Link from "next/link";
 import { BlocoSensibilidade } from "@/components/BlocoSensibilidade";
+import { BotaoEnviar } from "@/components/BotaoEnviar";
 import { Interruptor } from "@/components/Interruptor";
 import { PilulaOpcao } from "@/components/PilulaOpcao";
 import { TiposDeLugar } from "./TiposDeLugar";
@@ -159,9 +160,7 @@ export function Filtros({
           >
             Limpar filtros
           </Link>
-          <button type="submit" className="botao">
-            Aplicar filtros
-          </button>
+          <BotaoEnviar carregando="Aplicando…">Aplicar filtros</BotaoEnviar>
         </div>
       </Form>
     </details>

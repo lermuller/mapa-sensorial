@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { TextoAoCarregar } from "@/components/Carregando";
 import { IconeCategoria } from "@/components/IconeCategoria";
 import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
 import { LinkSeta } from "@/components/LinkSeta";
@@ -64,7 +65,7 @@ export function PainelLugar({
             className="shrink-0 px-3"
           />
           <Link href={hrefs.relatar} scroll={false} className="botao flex-1">
-            Contar como é lá
+            <TextoAoCarregar>Contar como é lá</TextoAoCarregar>
           </Link>
         </div>
       </header>

@@ -206,3 +206,98 @@ export async function enderecoDoPonto(
     return null;
   }
 }
+
+export type Regiao = {
+  nome: string;
+  cidade: string | null;
+  uf: string | null;
+  tipo: "bairro" | "cidade";
+  /** Retângulo da região, no formato da busca por área. */
+  area: { sul: number; oeste: number; norte: number; leste: number };
+};
+
+const CHAVES_REGIAO = new Set(["place", "boundary"]);
+const BAIRROS = new Set(["suburb", "neighbourhood", "quarter", "administrative"]);
+const CIDADES = new Set(["city", "town", "municipality", "village"]);
+
+type FeatureRegiao = FeaturePhoton & { properties: FeaturePhoton["properties"] & { extent?: number[] } };
+
+/** Bairros e cidades do Brasil com esse nome (sugestões e busca por bairro). */
+export async function buscarRegioes(
+  texto: string,
+  perto: { lat: number; lng: number } = { lat: -30.0346, lng: -51.2177 },
+  limite = 5,
+): Promise<Regiao[]> {
+  if (texto.trim().length < 3) return [];
+  const u = new URL("https://photon.komoot.io/api/");
+  u.searchParams.set("q", texto.slice(0, 100));
+  u.searchParams.set("limit", String(limite * 2));
+  u.searchParams.set("bbox", BRASIL);
+  u.searchParams.set("lat", String(perto.lat));
+  u.searchParams.set("lon", String(perto.lng));
+  for (const l of ["district", "locality", "city"]) u.searchParams.append("layer", l);
+  try {
+    const r = await fetch(u, {
+      headers: { "User-Agent": AGENTE },
+      signal: AbortSignal.timeout(3000),
+      next: { revalidate: 86_400 },
+    });
+    if (!r.ok) return [];
+    const { features } = (await r.json()) as { features: FeatureRegiao[] };
+    const regioes: Regiao[] = [];
+    const vistas = new Set<string>();
+    for (const f of features) {
+      const p = f.properties;
+      if (p.countrycode !== "BR" || !p.name || !CHAVES_REGIAO.has(p.osm_key ?? "")) continue;
+      const tipo = CIDADES.has(p.osm_value ?? "") ? "cidade" : BAIRROS.has(p.osm_value ?? "") ? "bairro" : null;
+      if (!tipo) continue;
+      const cidade = tipo === "cidade" ? p.name : (p.city ?? null);
+      const uf = ufDoEstado(p.state);
+      const chave = `${p.name}|${cidade}|${uf}`;
+      if (vistas.has(chave)) continue;
+      vistas.add(chave);
+      const [lng, lat] = f.geometry.coordinates;
+      // extent do Photon: [oeste, norte, leste, sul]. Sem ele, um quadrado em volta do ponto.
+      const e = p.extent;
+      const raio = tipo === "cidade" ? 0.08 : 0.012;
+      const area =
+        e && e.length === 4
+          ? { oeste: e[0], norte: e[1], leste: e[2], sul: e[3] }
+          : { oeste: lng - raio, norte: lat + raio, leste: lng + raio, sul: lat - raio };
+      regioes.push({ nome: p.name, cidade, uf, tipo, area });
+      if (regioes.length >= limite) break;
+    }
+    return regioes;
+  } catch {
+    return [];
+  }
+}
+
+function semAcento(t: string): string {
+  return t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+/**
+ * O texto é exatamente o nome de um bairro ou cidade ("Moinhos de Vento", "Batel Curitiba",
+ * "bairro Bom Fim")? Só com nome exato, para não confundir com nomes de lugares.
+ */
+export async function regiaoExata(
+  texto: string,
+  perto?: { lat: number; lng: number },
+): Promise<Regiao | null> {
+  const procurado = semAcento(texto).replace(/^bairro\s+/, "");
+  if (procurado.length < 3) return null;
+  const regioes = await buscarRegioes(texto.replace(/^\s*bairro\s+/i, ""), perto);
+  return (
+    regioes.find((r) => {
+      const nome = semAcento(r.nome);
+      const cidade = semAcento(r.cidade ?? "");
+      return (
+        procurado === nome ||
+        procurado === `${nome} ${cidade}` ||
+        procurado === `${nome} ${cidade} ${semAcento(r.uf ?? "")}` ||
+        procurado === `${nome} ${semAcento(r.uf ?? "")}`
+      );
+    }) ?? null
+  );
+}

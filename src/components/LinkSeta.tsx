@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { SetaDoLink } from "./Carregando";
 
 /** Link solto (fora de frases): sem sublinhado e com seta. "voltar" põe a seta antes. */
 export function LinkSeta({
@@ -18,7 +19,10 @@ export function LinkSeta({
   scroll?: boolean;
   className?: string;
 }) {
-  const seta = (
+  // Em links internos, a seta vira ampulheta enquanto a página carrega (SetaDoLink).
+  const seta = !externo ? (
+    <SetaDoLink voltar={voltar} />
+  ) : (
     <svg
       viewBox="0 0 24 24"
       aria-hidden="true"

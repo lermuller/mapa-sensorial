@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { interpretarBusca } from "./busca";
+import { interpretarBusca, sugerirTipo } from "./busca";
 
 describe("interpretarBusca", () => {
   it("reconhece tipo de lugar no plural e sem acento", () => {
@@ -29,5 +29,15 @@ describe("interpretarBusca", () => {
 
   it("deixa como está quando não há tipo", () => {
     expect(interpretarBusca("Brizza Forneria")).toEqual({ termo: "Brizza Forneria", tipo: null });
+  });
+});
+
+describe("sugerirTipo", () => {
+  it("completa o tipo de lugar pelo começo da palavra", () => {
+    expect(sugerirTipo("caf")).toEqual({ consulta: "cafe", rotulo: "cafés" });
+    expect(sugerirTipo("hosp")?.rotulo).toBe("hospitais");
+    expect(sugerirTipo("Museus")?.rotulo).toBe("museus");
+    expect(sugerirTipo("ca")).toBeNull();
+    expect(sugerirTipo("brizza")).toBeNull();
   });
 });

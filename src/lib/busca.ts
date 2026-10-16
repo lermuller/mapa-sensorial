@@ -160,3 +160,26 @@ export function interpretarBusca(busca: string): BuscaInterpretada {
   }
   return { termo: busca.trim(), tipo: null };
 }
+
+/**
+ * Tipo de lugar que começa com o que a pessoa digitou ("caf" → cafés), para as sugestões.
+ * Devolve a palavra a buscar e o rótulo para mostrar.
+ */
+export function sugerirTipo(digitado: string): { consulta: string; rotulo: string } | null {
+  const texto = normalizar(digitado);
+  if (texto.length < 3) return null;
+  const exato = TERMOS[texto] ?? TERMOS[singular(texto)];
+  if (exato) return { consulta: texto, rotulo: exato.rotulo };
+  const chave = Object.keys(TERMOS)
+    .filter((k) => k.startsWith(texto))
+    .sort((a, b) => a.length - b.length)[0];
+  return chave ? { consulta: chave, rotulo: TERMOS[chave].rotulo } : null;
+}
+
+/** Sugestão da busca enquanto a pessoa digita (rota /sugestoes). */
+export type Sugestao = {
+  tipo: "tipo" | "lugar" | "regiao";
+  rotulo: string;
+  detalhe: string;
+  href: string;
+};

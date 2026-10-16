@@ -4,6 +4,8 @@ import { metadadosDoLugar } from "@/lib/compartilhar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BuscaMapa } from "@/components/busca/BuscaMapa";
+import { BotaoEnviar } from "@/components/BotaoEnviar";
+import { CampoBusca } from "@/components/busca/CampoBusca";
 import { Filtros } from "@/components/busca/Filtros";
 import { ResumoProjeto } from "@/components/busca/SobreProjeto";
 import { FormRelato } from "@/components/FormRelato";
@@ -27,7 +29,7 @@ import {
   type ResultadoBusca,
 } from "@/lib/dados";
 import { interpretarBusca, normalizar } from "@/lib/busca";
-import { buscarForaDaBase, type LugarExterno } from "@/lib/externo";
+import { buscarForaDaBase, regiaoExata, type LugarExterno, type Regiao } from "@/lib/externo";
 import { areaParaTexto, lerParamsBusca, primeiro } from "@/lib/parametros";
 
 // Com um lugar aberto (?lugar=), o link compartilhado mostra a prévia dele.
@@ -62,34 +64,49 @@ export default async function Inicio(props: PageProps<"/">) {
   // Sem resultado por tipo, também busca o texto inteiro (ex.: "Mercado Público").
   const { termo: restoDaBusca, tipo } = interpretarBusca(params.termo);
   const tipoEmUso = tipo && (params.categorias.length === 0 || params.categorias.includes(tipo.categoria)) ? tipo : null;
-  async function buscar(): Promise<{ lista: ResultadoBusca[]; porTipo: boolean }> {
+  const centroArea = params.area
+    ? { lat: (params.area.sul + params.area.norte) / 2, lng: (params.area.oeste + params.area.leste) / 2 }
+    : undefined;
+  async function buscar(): Promise<{ lista: ResultadoBusca[]; porTipo: boolean; regiao: Regiao | null }> {
     const base = { ...params, estimulos: estimulosBusca };
-    if (!tipoEmUso) return { lista: await buscarLugares(base), porTipo: false };
+    const filtroTipo = tipoEmUso
+      ? { categorias: [tipoEmUso.categoria], subtipos: tipoEmUso.subtipos, palavra: tipoEmUso.palavra }
+      : {};
+    // Bairro ou cidade ("Moinhos de Vento", "café no Bom Fim", "Curitiba"): mostra os lugares
+    // dentro da área dele, já que muitos lugares do OpenStreetMap não têm o bairro preenchido.
+    // Lugares com esse nome no próprio nome entram primeiro.
+    const textoRegiao = tipoEmUso ? restoDaBusca : params.termo;
+    const [regiao, porTexto] = await Promise.all([
+      textoRegiao ? regiaoExata(textoRegiao, centroArea) : Promise.resolve(null),
+      buscarLugares(base),
+    ]);
+    if (regiao) {
+      const naArea = await buscarLugares({ ...base, termo: "", area: regiao.area, ...filtroTipo });
+      if (naArea.length > 0) {
+        const procurado = normalizar(params.termo);
+        const comONome = porTexto.filter(
+          (r) => normalizar(r.nome).includes(procurado) && !naArea.some((a) => a.id === r.id),
+        );
+        return { lista: [...comONome, ...naArea].slice(0, LIMITE_BUSCA), porTipo: !!tipoEmUso, regiao };
+      }
+    }
+    if (!tipoEmUso) return { lista: porTexto, porTipo: false, regiao: null };
     if (restoDaBusca) {
-      const porNome = await buscarLugares(base);
       const procurado = normalizar(params.termo);
-      const bateNoNome = porNome.some((r) =>
+      const bateNoNome = porTexto.some((r) =>
         normalizar(`${r.nome} ${r.endereco ?? ""} ${r.bairro ?? ""} ${r.cidade ?? ""}`).includes(procurado),
       );
-      if (bateNoNome) return { lista: porNome, porTipo: false };
+      if (bateNoNome) return { lista: porTexto, porTipo: false, regiao: null };
     }
-    const porTipo = await buscarLugares({
-      ...base,
-      termo: restoDaBusca,
-      categorias: [tipoEmUso.categoria],
-      subtipos: tipoEmUso.subtipos,
-      palavra: tipoEmUso.palavra,
-    });
-    if (porTipo.length > 0) return { lista: porTipo, porTipo: true };
-    return { lista: await buscarLugares(base), porTipo: false };
+    const porTipo = await buscarLugares({ ...base, termo: restoDaBusca, ...filtroTipo });
+    if (porTipo.length > 0) return { lista: porTipo, porTipo: true, regiao: null };
+    return { lista: porTexto, porTipo: false, regiao: null };
   }
   let tipoUsado = false;
   // Lugares do Brasil todo (OpenStreetMap) para completar a busca por texto. Só com texto além
   // do tipo: "cafés" sozinho não diz onde; "café Curitiba" diz.
   const buscarFora = params.termo && !(tipo && !restoDaBusca);
-  const centroArea = params.area
-    ? { lat: (params.area.sul + params.area.norte) / 2, lng: (params.area.oeste + params.area.leste) / 2 }
-    : undefined;
+  let regiaoUsada: Regiao | null = null;
   let achadosFora: LugarExterno[] = [];
   try {
     let busca: Awaited<ReturnType<typeof buscar>>;
@@ -101,6 +118,7 @@ export default async function Inicio(props: PageProps<"/">) {
     ]);
     resultados = busca.lista;
     tipoUsado = busca.porTipo;
+    regiaoUsada = busca.regiao;
   } catch (e) {
     console.error("Erro na busca", e);
     falhou = true;
@@ -142,7 +160,13 @@ export default async function Inicio(props: PageProps<"/">) {
       ? externos.length > 0
         ? `${externos.length} ${externos.length === 1 ? "lugar" : "lugares"} no Brasil para “${params.termo}”`
         : "Nenhum lugar encontrado."
-      : tipoUsado && tipoEmUso
+      : regiaoUsada
+        ? `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
+            tipoUsado && tipoEmUso ? tipoEmUso.rotulo : resultados.length === 1 ? "lugar" : "lugares"
+          } em ${regiaoUsada.nome}${
+            regiaoUsada.tipo === "bairro" && regiaoUsada.cidade ? ` (${regiaoUsada.cidade})` : ""
+          }`
+        : tipoUsado && tipoEmUso
         ? `${resultados.length}${resultados.length === LIMITE_BUSCA ? "+" : ""} ${
             resultados.length === 1 ? "lugar" : "lugares"
           }: ${tipoEmUso.rotulo}${restoDaBusca ? ` · “${restoDaBusca}”` : ""}`
@@ -236,18 +260,10 @@ export default async function Inicio(props: PageProps<"/">) {
     <div className="flex items-start gap-2">
       <Form action="/" role="search" className="flex min-w-0 flex-1 gap-2">
         <label htmlFor="busca" className="sr-only">
-          Nome do lugar, bairro ou tipo de lugar, como cafés ou museus
+          Nome do lugar, bairro, cidade ou tipo de lugar, como cafés ou museus
         </label>
-        <input
-          id="busca"
-          // key: o campo acompanha a busca da URL (ex.: esvazia ao limpar a busca)
-          key={params.termo}
-          name="q"
-          type="search"
-          defaultValue={params.termo}
-          className="campo campo-pilula border-transparent shadow-suave"
-          placeholder="Lugar, bairro ou tipo (ex.: cafés)"
-        />
+        {/* key: o campo acompanha a busca da URL (ex.: esvazia ao limpar a busca) */}
+        <CampoBusca key={params.termo} valorInicial={params.termo} perto={centroArea} />
         {params.categorias.map((c) => (
           <input key={c} type="hidden" name="tipo" value={c} />
         ))}
@@ -264,7 +280,7 @@ export default async function Inicio(props: PageProps<"/">) {
         )}
         <input type="hidden" name="f" value="1" />
         {perfilConta && params.usarPerfil && <input type="hidden" name="perfil" value="1" />}
-        <button type="submit" className="botao shrink-0 px-3 shadow-suave sm:px-5">
+        <BotaoEnviar carregando="Buscando…" className="botao shrink-0 px-3 shadow-suave sm:px-5">
           <svg
             viewBox="0 0 24 24"
             className="h-5 w-5 sm:hidden"
@@ -278,7 +294,7 @@ export default async function Inicio(props: PageProps<"/">) {
             <path d="m20 20-3.5-3.5" />
           </svg>
           <span className="sr-only sm:not-sr-only">Buscar</span>
-        </button>
+        </BotaoEnviar>
       </Form>
       <Filtros params={params} perfilConta={perfilConta} />
     </div>
@@ -291,7 +307,8 @@ export default async function Inicio(props: PageProps<"/">) {
           resultados={resultados}
           estimulos={estimulosBusca}
           usarPerfil={!!perfilConta && params.usarPerfil}
-          area={params.area}
+          // Busca por bairro ou cidade: o mapa enquadra a área dele.
+          area={params.area ?? regiaoUsada?.area ?? null}
           resumo={resumo}
           termoBusca={params.termo}
           externos={externos}
