@@ -5,8 +5,9 @@ import { LinkSeta, VoltarAoMapa } from "@/components/LinkSeta";
 import { sair } from "@/lib/acoes/conta";
 import { ehModeradora } from "@/lib/acoes/moderacao";
 import { AVATAR_PADRAO } from "@/lib/avatar";
-import { obterCadastro, relatosDoUsuario } from "@/lib/dados";
-import { formatarData } from "@/lib/formato";
+import { lugaresDoUsuario, obterCadastro, relatosDoUsuario } from "@/lib/dados";
+import { ROTULO_CATEGORIA } from "@/lib/estimulos";
+import { formatarData, localDoLugar } from "@/lib/formato";
 import { primeiro } from "@/lib/parametros";
 import { criarClienteServidor, usuarioAtualId } from "@/lib/supabase/server";
 import { PainelMetricas } from "@/components/metricas/PainelMetricas";
@@ -17,11 +18,12 @@ import { FormApagarConta } from "./Formularios";
 
 export const metadata: Metadata = { title: "Minha conta" };
 
-type Aba = "perfil" | "relatos" | "metricas";
+type Aba = "perfil" | "relatos" | "lugares" | "metricas";
 
 const ABAS: { id: Aba; rotulo: string; href: string; soModeracao?: boolean }[] = [
   { id: "perfil", rotulo: "Perfil", href: "/conta" },
   { id: "relatos", rotulo: "Meus relatos", href: "/conta?aba=relatos" },
+  { id: "lugares", rotulo: "Meus lugares", href: "/conta?aba=lugares" },
   { id: "metricas", rotulo: "Métricas", href: "/conta?aba=metricas", soModeracao: true },
 ];
 
@@ -33,16 +35,23 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
   const perfilApagado = primeiro(sp.apagado) === "1";
 
   const supabase = await criarClienteServidor();
-  const [{ data: claims }, cadastro, relatos, moderadora] = await Promise.all([
+  const [{ data: claims }, cadastro, relatos, moderadora, meusLugares] = await Promise.all([
     supabase.auth.getClaims(),
     obterCadastro(usuarioId),
     relatosDoUsuario(usuarioId),
     ehModeradora(),
+    lugaresDoUsuario(usuarioId),
   ]);
   const email = (claims?.claims?.email as string | undefined) ?? "";
   // A aba Métricas só existe para a moderação; para as outras pessoas, volta ao perfil.
   const aba: Aba =
-    abaPedida === "relatos" ? "relatos" : abaPedida === "metricas" && moderadora ? "metricas" : "perfil";
+    abaPedida === "relatos"
+      ? "relatos"
+      : abaPedida === "lugares"
+        ? "lugares"
+        : abaPedida === "metricas" && moderadora
+          ? "metricas"
+          : "perfil";
   const metricas = aba === "metricas" ? await metricasInternas() : null;
 
   return (
@@ -66,7 +75,7 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
 
       <div className="grid gap-4 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-6">
         {/* Abas: coluna à esquerda no computador, linha no celular */}
-        <nav aria-label="Seções da conta" className="flex gap-1 md:flex-col">
+        <nav aria-label="Seções da conta" className="flex flex-wrap gap-1 md:flex-col md:flex-nowrap">
           {ABAS.filter((a) => !a.soModeracao || moderadora).map((a) => (
             <Link
               key={a.id}
@@ -79,6 +88,9 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
               {a.rotulo}
               {a.id === "relatos" && (
                 <span className="text-xs font-semibold text-texto-suave">{relatos.length}</span>
+              )}
+              {a.id === "lugares" && (
+                <span className="text-xs font-semibold text-texto-suave">{meusLugares.length}</span>
               )}
             </Link>
           ))}
@@ -119,6 +131,63 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
                 <FormApagarConta />
               </section>
             </>
+          ) : aba === "lugares" ? (
+            <section aria-labelledby="titulo-lugares" className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="titulo-lugares" className="text-xl">
+                  Meus lugares ({meusLugares.length})
+                </h2>
+                <Link href="/lugar/novo" className="botao">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Adicionar lugar
+                </Link>
+              </div>
+              <p className="ajuda">
+                Não achou um lugar na busca? Adicione: ele aparece no mapa na hora. Dá para corrigir ou
+                apagar enquanto ninguém mais tiver contado como é lá.
+              </p>
+              {meusLugares.length === 0 ? (
+                <p className="text-sm italic text-texto-suave">Você ainda não adicionou nenhum lugar.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {meusLugares.map((l) => {
+                    const situacao = l.arquivado
+                      ? "Arquivado pela moderação"
+                      : l.oculto
+                        ? "Fora do ar, em revisão"
+                        : l.talvez_fechado
+                          ? "Com aviso “Pode ter fechado”"
+                          : null;
+                    return (
+                      <li key={l.id} className="cartao flex flex-wrap items-baseline gap-x-4 gap-y-1 bg-fundo">
+                        <span className="min-w-0">
+                          {l.arquivado || l.oculto ? (
+                            <span className="font-bold">{l.nome}</span>
+                          ) : (
+                            <Link href={`/?lugar=${l.id}`} className="font-bold text-texto no-underline hover:underline">
+                              {l.nome}
+                            </Link>
+                          )}
+                          <span className="ajuda block">
+                            {[ROTULO_CATEGORIA[l.categoria], localDoLugar(l), `adicionado em ${formatarData(l.criado_em)}`]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </span>
+                          {situacao && <span className="block text-sm font-bold">{situacao}</span>}
+                        </span>
+                        {l.podeEditar && !l.arquivado && (
+                          <Link href={`/lugar/${l.id}/editar`} className="botao-terciario ml-auto text-sm">
+                            Corrigir
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
           ) : aba === "metricas" && metricas ? (
             <section aria-labelledby="titulo-metricas" className="space-y-4">
               <div className="space-y-1">

@@ -180,6 +180,34 @@ export async function buscarLugares(filtros: FiltrosBusca): Promise<ResultadoBus
 // Lugar
 // ---------------------------------------------------------------------------
 
+export type MeuLugar = Lugar & {
+  criado_em: string;
+  oculto: boolean;
+  arquivado: boolean;
+  /** Ainda pode corrigir ou apagar: sem relatos de outras pessoas. */
+  podeEditar: boolean;
+};
+
+/** Lugares que a pessoa adicionou (inclusive fora do ar ou arquivados), mais novos primeiro. */
+export async function lugaresDoUsuario(usuarioId: string): Promise<MeuLugar[]> {
+  const supabase = await criarClienteServidor();
+  const { data, error } = await supabase
+    .from("lugares")
+    .select("id, nome, categoria, endereco, bairro, cidade, uf, lat, lng, origem, talvez_fechado, criado_em, oculto, arquivado")
+    .eq("criado_por", usuarioId)
+    .order("criado_em", { ascending: false });
+  if (error) throw error;
+  const lugares = (data ?? []) as Omit<MeuLugar, "podeEditar">[];
+  if (lugares.length === 0) return [];
+  const { data: deOutros } = await supabase
+    .from("relatos")
+    .select("lugar_id")
+    .in("lugar_id", lugares.map((l) => l.id))
+    .neq("usuario_id", usuarioId);
+  const comRelatosDeOutros = new Set((deOutros ?? []).map((r: { lugar_id: string }) => r.lugar_id));
+  return lugares.map((l) => ({ ...l, podeEditar: !comRelatosDeOutros.has(l.id) }));
+}
+
 /** Ids na nossa base dos lugares do OpenStreetMap que já foram gravados ("node/123" → id). */
 export async function idsPorOsm(osmIds: string[]): Promise<Map<string, string>> {
   if (osmIds.length === 0) return new Map();
