@@ -143,7 +143,7 @@ O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consenti
 ### Métricas e dados abertos
 
 - **/metricas** (só moderação, tabela `moderadores`): relatos (total, 7 e 30 dias, por semana, com “O que esperar”), contas (novas, que entraram e que contribuíram nos últimos 30 dias, % que já relatou), lugares avaliados, adicionados pela comunidade e denúncias abertas. Só contagens; o perfil sensorial não entra.
-- **/dados** (público) e **/dados/csv**: por tipo de lugar (cafés, restaurantes e lanchonetes separados pelo subtipo), a parte das avaliações “alto” de cada estímulo e a variação por dia e horário. Só níveis, tipo, data e horário dos relatos no ar; sem nomes, contas, textos ou perfis. Números com menos de 5 avaliações não aparecem. Licença CC BY 4.0.
+- **/dados** (público) e **/dados/csv**: por tipo de lugar (cafés, restaurantes e lanchonetes separados pelo subtipo), a parte das avaliações “alto” de cada estímulo e a variação por dia e horário. Só níveis, tipo, data e horário dos relatos no ar; sem nomes, contas, textos ou perfis. Tipos de lugar com menos de 5 relatos aparecem com o aviso "amostra pequena" (coluna amostra_pequena no CSV); na tabela por horário, menos de 5 avaliações não aparecem. Seletor de tipo de lugar com os estímulos ordenados do mais relatado como alto. Licença CC BY 4.0.
 - Visitas e páginas vistas ainda não são medidas (exigiria um serviço de analytics e atualizar a política de privacidade).
 
 ## Fora do MVP (próximas versões)

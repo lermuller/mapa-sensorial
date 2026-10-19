@@ -5,7 +5,7 @@
 import { faixaDoRelato, DIAS_FAIXA, PERIODOS_FAIXA, type DiaFaixa, type PeriodoFaixa } from "./calculo";
 import { ESTIMULOS, type Categoria, type Estimulo, type Intensidade } from "./estimulos";
 
-/** Menos que isso não aparece: evita conclusões (e exposição) com poucos relatos. */
+/** Menos relatos que isso: os números aparecem com o aviso "amostra pequena". */
 export const MINIMO_PUBLICO = 5;
 
 export type RelatoEstatistica = {
@@ -46,8 +46,10 @@ export type ResumoGrupo = {
   rotulo: string;
   relatos: number;
   porEstimulo: Record<Estimulo, Contagem>;
-  /** Estímulo com maior parte de avaliações "alto" (entre os com dados suficientes). */
+  /** Estímulo com maior parte de avaliações "alto". */
   maisAlto: { estimulo: Estimulo; percentual: number } | null;
+  /** Menos de MINIMO_PUBLICO relatos: usar com cuidado. */
+  amostraPequena: boolean;
 };
 
 function vazio(): Record<Estimulo, Contagem> {
@@ -79,21 +81,30 @@ export function suficiente(c: Contagem): boolean {
   return c.avaliacoes >= MINIMO_PUBLICO;
 }
 
-/** Resumo de cada tipo de lugar com pelo menos MINIMO_PUBLICO relatos. */
+/**
+ * Resumo de cada tipo de lugar (todos os tipos, inclusive sem relatos, para o seletor).
+ * Com menos de MINIMO_PUBLICO relatos, o resumo vem marcado como amostra pequena.
+ */
 export function resumirGrupos(relatos: RelatoEstatistica[]): ResumoGrupo[] {
   const resultado: ResumoGrupo[] = [];
   for (const g of GRUPOS) {
     const doGrupo = relatos.filter(g.inclui);
-    if (doGrupo.length < MINIMO_PUBLICO) continue;
     const porEstimulo = contar(doGrupo);
     let maisAlto: ResumoGrupo["maisAlto"] = null;
     for (const e of ESTIMULOS) {
       const c = porEstimulo[e];
-      if (!suficiente(c)) continue;
+      if (c.avaliacoes === 0) continue;
       const p = percentual(c.alto, c.avaliacoes);
       if (p > 0 && (!maisAlto || p > maisAlto.percentual)) maisAlto = { estimulo: e, percentual: p };
     }
-    resultado.push({ id: g.id, rotulo: g.rotulo, relatos: doGrupo.length, porEstimulo, maisAlto });
+    resultado.push({
+      id: g.id,
+      rotulo: g.rotulo,
+      relatos: doGrupo.length,
+      porEstimulo,
+      maisAlto,
+      amostraPequena: doGrupo.length < MINIMO_PUBLICO,
+    });
   }
   return resultado;
 }
@@ -120,25 +131,25 @@ export function resumirFaixas(relatos: RelatoEstatistica[]): ResumoFaixa[] {
   return resultado;
 }
 
-/** CSV dos tipos de lugar, um estímulo por linha. Células com poucos dados ficam vazias. */
+/** CSV dos tipos de lugar com relatos, um estímulo por linha, marcando as amostras pequenas. */
 export function paraCsv(grupos: ResumoGrupo[]): string {
   const linhas = [
-    "tipo_de_lugar,relatos,estimulo,avaliacoes,baixo,medio,alto,percentual_alto",
+    "tipo_de_lugar,relatos,amostra_pequena,estimulo,avaliacoes,baixo,medio,alto,percentual_alto",
   ];
-  for (const g of grupos) {
+  for (const g of grupos.filter((x) => x.relatos > 0)) {
     for (const e of ESTIMULOS) {
       const c = g.porEstimulo[e];
-      const ok = suficiente(c);
       linhas.push(
         [
           `"${g.rotulo}"`,
           g.relatos,
+          g.amostraPequena ? "sim" : "nao",
           e,
           c.avaliacoes,
-          ok ? c.baixo : "",
-          ok ? c.medio : "",
-          ok ? c.alto : "",
-          ok ? percentual(c.alto, c.avaliacoes) : "",
+          c.baixo,
+          c.medio,
+          c.alto,
+          c.avaliacoes > 0 ? percentual(c.alto, c.avaliacoes) : "",
         ].join(","),
       );
     }

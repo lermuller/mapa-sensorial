@@ -227,7 +227,7 @@ export default function PaginaPrivacidade() {
           Também publicamos <Link href="/dados">dados abertos</Link>: estatísticas somadas dos
           relatos, como “em cafés, som alto aparece em X% das avaliações”. Elas usam só os níveis,
           o tipo de lugar, a data e o horário dos relatos, sem nomes, contas, textos ou perfis
-          sensoriais, e números com menos de 5 avaliações não aparecem. Para acompanhar o projeto,
+          sensoriais. Números com poucos relatos aparecem com o aviso “amostra pequena”. Para acompanhar o projeto,
           quem o mantém vê também contagens internas, como o número de contas e de relatos por
           semana, sem identificar ninguém.
         </p>

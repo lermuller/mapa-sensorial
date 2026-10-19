@@ -1,5 +1,7 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { percentual } from "@/lib/estatisticas";
+import { rotuloSemana } from "@/lib/semanas";
 import type { MetricasInternas } from "@/lib/metricas";
 
 function Numero({ valor, rotulo, detalhe }: { valor: number | string; rotulo: string; detalhe?: string }) {
@@ -24,8 +26,6 @@ function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
 /** Números de uso da plataforma (aba Métricas da conta, só moderação). Só contagens. */
 export function PainelMetricas({ m }: { m: MetricasInternas }) {
   const maxSemana = Math.max(1, ...m.relatosPorSemana.map((s) => s.total));
-  const dataCurta = (iso: string) =>
-    new Date(`${iso}T12:00:00Z`).toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
 
   return (
     <div className="space-y-8">
@@ -42,6 +42,7 @@ export function PainelMetricas({ m }: { m: MetricasInternas }) {
         </div>
         <div className="cartao space-y-2 p-4">
           <p className="text-sm font-bold">Relatos por semana</p>
+          <p className="ajuda -mt-1 text-xs">De segunda a domingo; a última barra é a semana atual.</p>
           <ol className="flex h-36 items-end gap-2" aria-label="Relatos nas últimas 8 semanas">
             {m.relatosPorSemana.map((s) => (
               <li key={s.inicio} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
@@ -53,7 +54,7 @@ export function PainelMetricas({ m }: { m: MetricasInternas }) {
                 />
                 <span className="text-[0.6875rem] text-texto-suave">
                   <span className="sr-only">semana de </span>
-                  {dataCurta(s.inicio)}
+                  {rotuloSemana(s.inicio, s.fim)}
                 </span>
               </li>
             ))}
@@ -103,6 +104,27 @@ export function PainelMetricas({ m }: { m: MetricasInternas }) {
               {m.maisRelatados.map((l, i) => (
                 <li key={i}>
                   {l.nome} <span className="text-texto-suave">· {l.total}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        {m.ultimosAvaliados.length > 0 && (
+          <div className="cartao p-4">
+            <p className="mb-2 text-sm font-bold">Últimos lugares avaliados</p>
+            <ol className="list-decimal space-y-1 pl-5 text-sm">
+              {m.ultimosAvaliados.map((l) => (
+                <li key={l.id}>
+                  <Link href={`/?lugar=${l.id}`}>{l.nome}</Link>{" "}
+                  <span className="text-texto-suave">
+                    · {new Date(l.quando).toLocaleString("pt-BR", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      timeZone: "America/Sao_Paulo",
+                    })}
+                  </span>
                 </li>
               ))}
             </ol>

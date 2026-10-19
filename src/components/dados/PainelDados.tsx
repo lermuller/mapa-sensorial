@@ -1,16 +1,16 @@
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { VoltarAoMapa } from "@/components/LinkSeta";
 import { Personagem } from "@/components/Personagem";
+import { SeletorTipoLugar } from "./SeletorTipoLugar";
 import { ROTULO_DIA, NOME_PERIODO } from "@/lib/calculo";
-import { COR_ESTIMULO, ESTIMULOS, INFO_ESTIMULO, nivelNaFrase } from "@/lib/estimulos";
+import { ESTIMULOS, INFO_ESTIMULO } from "@/lib/estimulos";
 import {
   MINIMO_PUBLICO,
   percentual,
   resumirFaixas,
   resumirGrupos,
   suficiente,
-  type Contagem,
   type RelatoEstatistica,
 } from "@/lib/estatisticas";
 
@@ -20,40 +20,6 @@ function Numero({ valor, rotulo }: { valor: number; rotulo: string }) {
       <p className="display text-4xl">{valor.toLocaleString("pt-BR")}</p>
       <p className="text-sm text-texto-suave">{rotulo}</p>
     </div>
-  );
-}
-
-/** Barra com a parte de avaliações "alto" de um estímulo. O número vem escrito ao lado. */
-function BarraAlto({ estimulo, c }: { estimulo: (typeof ESTIMULOS)[number]; c: Contagem }) {
-  const nome = INFO_ESTIMULO[estimulo].nome;
-  if (!suficiente(c)) {
-    return (
-      <li className="text-sm">
-        <span className="font-bold">{nome}</span>{" "}
-        <span className="text-texto-suave">
-          · poucos dados ({c.avaliacoes} {c.avaliacoes === 1 ? "avaliação" : "avaliações"})
-        </span>
-      </li>
-    );
-  }
-  const p = percentual(c.alto, c.avaliacoes);
-  return (
-    <li className="space-y-1 text-sm">
-      <p>
-        <span className="font-bold">{nome}</span>{" "}
-        <span>
-          {p}% {nivelNaFrase(estimulo, "alto")}
-        </span>{" "}
-        <span className="text-texto-suave">· {c.avaliacoes} avaliações</span>
-      </p>
-      <div
-        aria-hidden="true"
-        className="h-3 overflow-hidden rounded-full bg-fundo"
-        style={{ border: "max(1px, var(--linha)) solid var(--borda)" }}
-      >
-        <div className="h-full rounded-full" style={{ width: `${p}%`, background: COR_ESTIMULO[estimulo] }} />
-      </div>
-    </li>
   );
 }
 
@@ -117,42 +83,10 @@ export function PainelDados({
 
       <Secao id="tipos" titulo="O que mais aparece em cada tipo de lugar">
         <p className="text-texto-suave">
-          Para cada estímulo, a parte das avaliações em que ele foi relatado como alto. Só aparecem
-          tipos de lugar com pelo menos {MINIMO_PUBLICO} relatos.
+          Escolha um tipo de lugar para ver, em cada estímulo, a parte das avaliações em que ele foi
+          relatado como alto, do mais citado para o menos.
         </p>
-        {grupos.length === 0 ? (
-          <p className="cartao p-4">
-            Ainda são poucos relatos para mostrar estatísticas. Os números aparecem quando houver
-            pelo menos {MINIMO_PUBLICO} relatos. <Link href="/">Conte como é um lugar</Link>.
-          </p>
-        ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {grupos.map((g) => (
-              <li key={g.id} className="cartao space-y-3 p-4">
-                <div>
-                  <h3 className="text-lg">{g.rotulo}</h3>
-                  <p className="text-sm text-texto-suave">{g.relatos} relatos</p>
-                </div>
-                {g.maisAlto && (
-                  <p
-                    className="rounded-2xl p-3 text-sm text-tinta"
-                    style={{ background: COR_ESTIMULO[g.maisAlto.estimulo] } as CSSProperties}
-                  >
-                    Mais relatado como alto:{" "}
-                    <strong>
-                      {INFO_ESTIMULO[g.maisAlto.estimulo].nome} ({g.maisAlto.percentual}%)
-                    </strong>
-                  </p>
-                )}
-                <ul className="space-y-2.5" aria-label={`Estímulos em ${g.rotulo.toLowerCase()}`}>
-                  {ESTIMULOS.map((e) => (
-                    <BarraAlto key={e} estimulo={e} c={g.porEstimulo[e]} />
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        )}
+        <SeletorTipoLugar grupos={grupos} />
       </Secao>
 
       <Secao id="horarios" titulo="Ao longo da semana">
@@ -239,8 +173,9 @@ export function PainelDados({
             escolhido por elas.
           </li>
           <li>
-            Números com menos de {MINIMO_PUBLICO} avaliações não aparecem, para evitar conclusões
-            com poucos relatos.
+            Tipos de lugar com menos de {MINIMO_PUBLICO} relatos aparecem com o aviso “amostra
+            pequena” (e “sim” na coluna amostra_pequena do CSV): os números ainda podem mudar muito.
+            Na tabela por horário, números com menos de {MINIMO_PUBLICO} avaliações não aparecem.
           </li>
           <li>
             Os dados são só sobre os lugares. Não entram nomes, contas, textos dos relatos nem os

@@ -2,6 +2,7 @@ import "server-only";
 import type { Categoria, Estimulo, Intensidade } from "./estimulos";
 import { ESTIMULOS } from "./estimulos";
 import type { RelatoEstatistica } from "./estatisticas";
+import { diaEmSaoPaulo, ultimasSemanas } from "./semanas";
 import { criarClienteAdmin } from "./supabase/admin";
 
 // Leitura dos dados para /dados (público, agregado) e /metricas (interno, só moderação).
@@ -47,7 +48,8 @@ const DIA_MS = 24 * 60 * 60 * 1000;
 export type MetricasInternas = {
   relatos: { total: number; ultimos7: number; ultimos30: number; comTexto: number; ocultos: number };
   /** Relatos por semana (mais antiga primeiro), últimas 8 semanas. */
-  relatosPorSemana: { inicio: string; total: number }[];
+  /** Relatos por semana de calendário (segunda a domingo), da mais antiga à atual. */
+  relatosPorSemana: { inicio: string; fim: string; total: number }[];
   lugares: { total: number; avaliados: number; adicionadosPelaComunidade: number };
   contas: {
     total: number;
@@ -62,6 +64,8 @@ export type MetricasInternas = {
   };
   denunciasAbertas: number;
   maisRelatados: { nome: string; total: number }[];
+  /** Os 5 lugares com relato mais recente (sem repetir lugar), do mais novo para o mais antigo. */
+  ultimosAvaliados: { id: string; nome: string; quando: string }[];
 };
 
 /** Números de uso da plataforma, para quem mantém o projeto. Só contagens. */
@@ -90,18 +94,11 @@ export async function metricasInternas(agora = new Date()): Promise<MetricasInte
   const noAr = relatos.filter((r) => !r.oculto);
   const depois = (r: { criado_em: string }, dias: number) => new Date(r.criado_em) >= desde(dias);
 
-  // Semanas de 7 dias contadas para trás a partir de agora (a última inclui hoje).
-  const relatosPorSemana = Array.from({ length: 8 }, (_, i) => {
-    const fim = desde(7 * (7 - i));
-    const inicio = desde(7 * (8 - i));
-    return {
-      inicio: inicio.toISOString().slice(0, 10),
-      total: relatos.filter((r) => {
-        const d = new Date(r.criado_em);
-        return d >= inicio && d < fim;
-      }).length,
-    };
-  });
+  const diasDosRelatos = relatos.map((r) => diaEmSaoPaulo(r.criado_em));
+  const relatosPorSemana = ultimasSemanas(agora, 8).map((s) => ({
+    ...s,
+    total: diasDosRelatos.filter((d) => d >= s.inicio && d <= s.fim).length,
+  }));
 
   const porLugar = new Map<string, { nome: string; total: number }>();
   for (const r of noAr) {
@@ -134,7 +131,24 @@ export async function metricasInternas(agora = new Date()): Promise<MetricasInte
     },
     denunciasAbertas: denuncias.count ?? 0,
     maisRelatados: [...porLugar.values()].sort((a, b) => b.total - a.total).slice(0, 5),
+    ultimosAvaliados: ultimosLugares(noAr, 5),
   };
+}
+
+/** Lugares com relato mais recente, sem repetir lugar. */
+function ultimosLugares(
+  relatos: { lugar_id: string; criado_em: string; lugares: { nome: string } | null }[],
+  quantos: number,
+): { id: string; nome: string; quando: string }[] {
+  const vistos = new Set<string>();
+  const lista: { id: string; nome: string; quando: string }[] = [];
+  for (const r of [...relatos].sort((a, b) => b.criado_em.localeCompare(a.criado_em))) {
+    if (vistos.has(r.lugar_id)) continue;
+    vistos.add(r.lugar_id);
+    lista.push({ id: r.lugar_id, nome: r.lugares?.nome ?? "?", quando: r.criado_em });
+    if (lista.length >= quantos) break;
+  }
+  return lista;
 }
 
 /** Todas as contas (só datas de criação e último acesso), página por página. */

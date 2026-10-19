@@ -24,9 +24,12 @@ function relato(
 }
 
 describe("resumirGrupos", () => {
-  it("esconde tipos de lugar com poucos relatos", () => {
+  it("mostra tipos com poucos relatos, marcados como amostra pequena", () => {
     const poucos = Array.from({ length: MINIMO_PUBLICO - 1 }, () => relato({ niveis: { som: 2 } }));
-    expect(resumirGrupos(poucos).map((g) => g.id)).toEqual([]);
+    const cafes = resumirGrupos(poucos).find((g) => g.id === "cafes")!;
+    expect(cafes).toMatchObject({ relatos: 4, amostraPequena: true, maisAlto: { estimulo: "som", percentual: 100 } });
+    // Tipos sem relatos também vêm (para o seletor), com zero.
+    expect(resumirGrupos(poucos).find((g) => g.id === "museus" || g.id === "cultura")?.relatos).toBe(0);
   });
 
   it("conta níveis e acha o estímulo mais relatado como alto", () => {
@@ -40,8 +43,9 @@ describe("resumirGrupos", () => {
     expect(cafes.relatos).toBe(5);
     expect(cafes.porEstimulo.som).toEqual({ avaliacoes: 5, baixo: 0, medio: 1, alto: 4 });
     expect(cafes.maisAlto).toEqual({ estimulo: "som", percentual: 80 });
-    // Restaurantes têm só 1 relato: não aparecem.
-    expect(grupos.some((g) => g.id === "restaurantes")).toBe(false);
+    expect(cafes.amostraPequena).toBe(false);
+    // Restaurantes têm só 1 relato: aparecem como amostra pequena.
+    expect(grupos.find((g) => g.id === "restaurantes")).toMatchObject({ relatos: 1, amostraPequena: true });
     expect(grupos.find((g) => g.id === "todos")?.relatos).toBe(6);
   });
 });
@@ -61,10 +65,13 @@ describe("resumirFaixas", () => {
 });
 
 describe("paraCsv", () => {
-  it("deixa vazias as células com poucos dados", () => {
+  it("marca amostras pequenas e deixa de fora tipos sem relatos", () => {
     const rs = Array.from({ length: 5 }, (_, i) => relato({ niveis: { som: 2, ...(i === 0 ? { luz: 1 } : {}) } }));
+    rs.push(relato({ subtipo: "restaurante", niveis: { som: 0 } }));
     const csv = paraCsv(resumirGrupos(rs));
-    expect(csv).toContain('"Cafés",5,som,5,0,0,5,100');
-    expect(csv).toContain('"Cafés",5,luz,1,,,,');
+    expect(csv).toContain('"Cafés",5,nao,som,5,0,0,5,100');
+    expect(csv).toContain('"Cafés",5,nao,luz,1,0,1,0,0');
+    expect(csv).toContain('"Restaurantes",1,sim,som,1,1,0,0,0');
+    expect(csv).not.toContain("Museus");
   });
 });
