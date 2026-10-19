@@ -106,18 +106,18 @@ export type LinhaPlanilha = {
 };
 
 /** Lê a planilha do modelo (colunas pelo nome do cabeçalho, em qualquer ordem). */
-export function lerPlanilha(texto: string): { linhas: LinhaPlanilha[]; erro?: string } {
+export function lerPlanilha(texto: string): { linhas: LinhaPlanilha[]; ignoradas: number; erro?: string } {
   const [cabecalho, ...corpo] = separarCsv(texto);
-  if (!cabecalho) return { linhas: [], erro: "A planilha está vazia." };
+  if (!cabecalho) return { linhas: [], ignoradas: 0, erro: "A planilha está vazia." };
   const colunas = cabecalho.map(semAcento);
   const col = (...nomes: string[]) => colunas.findIndex((c) => nomes.includes(c));
   const iLugar = col("lugar", "nome", "nome do lugar");
-  if (iLugar < 0) return { linhas: [], erro: "Falta a coluna “lugar” no cabeçalho. Use o modelo." };
+  if (iLugar < 0) return { linhas: [], ignoradas: 0, erro: "Falta a coluna “lugar” no cabeçalho. Use o modelo." };
   const iOnde = col("onde", "endereco", "cidade", "bairro", "endereco ou cidade");
   const iQuando = col("quando", "periodo");
   const iData = col("data");
   const iEstimulo = Object.fromEntries(ESTIMULOS.map((e) => [e, col(e, e === "lotacao" ? "lotação" : e)]));
-  const linhas = corpo
+  const lidas = corpo
     .map((c) => {
       const pega = (i: number) => (i >= 0 ? (c[i] ?? "") : "");
       const nome = pega(iLugar).trim();
@@ -131,8 +131,16 @@ export function lerPlanilha(texto: string): { linhas: LinhaPlanilha[]; erro?: st
       };
     })
     .filter((l): l is LinhaPlanilha => l !== null);
+  // Lugares sem nenhum nível preenchido (os que a pessoa não conhece) ficam de fora: dá para
+  // subir a lista inteira de um tipo de lugar e preencher só os que conhece.
+  const linhas = lidas.filter((l) => ESTIMULOS.some((e) => l.niveis[e]));
+  const ignoradas = lidas.length - linhas.length;
   if (linhas.length > MAXIMO_POR_ENVIO) {
-    return { linhas: linhas.slice(0, MAXIMO_POR_ENVIO), erro: `Só as primeiras ${MAXIMO_POR_ENVIO} linhas foram lidas.` };
+    return {
+      linhas: linhas.slice(0, MAXIMO_POR_ENVIO),
+      ignoradas,
+      erro: `Só os primeiros ${MAXIMO_POR_ENVIO} lugares avaliados foram lidos; suba o resto em outro envio.`,
+    };
   }
-  return { linhas };
+  return { linhas, ignoradas };
 }

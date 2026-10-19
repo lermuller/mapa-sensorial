@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Configuração local do Claude Code
 /.claude/
+
+# Planilhas geradas para uso pessoal (não vão para o repositório)
+/planilhas/

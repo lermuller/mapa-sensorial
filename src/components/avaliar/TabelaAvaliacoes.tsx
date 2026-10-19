@@ -67,9 +67,9 @@ export function TabelaAvaliacoes({ hoje }: { hoje: string }) {
     const arquivo = e.target.files?.[0];
     e.target.value = "";
     if (!arquivo) return;
-    const { linhas: lidas, erro } = lerPlanilha(await arquivo.text());
+    const { linhas: lidas, ignoradas, erro } = lerPlanilha(await arquivo.text());
     if (lidas.length === 0) {
-      setPlanilha(erro ?? "Nenhuma linha com lugar na planilha.");
+      setPlanilha(erro ?? "Nenhum lugar avaliado na planilha. Preencha os níveis dos lugares que você conhece.");
       return;
     }
     const novas = lidas.map((l) =>
@@ -88,7 +88,9 @@ export function TabelaAvaliacoes({ hoje }: { hoje: string }) {
       }
     }
     setPlanilha(
-      `${novas.length} ${novas.length === 1 ? "linha lida" : "linhas lidas"} da planilha. Confira o lugar de cada uma antes de salvar.${erro ? ` ${erro}` : ""}`,
+      `${novas.length} ${novas.length === 1 ? "lugar avaliado lido" : "lugares avaliados lidos"} da planilha${
+        ignoradas > 0 ? ` (${ignoradas} sem avaliação ficaram de fora)` : ""
+      }. Confira o lugar de cada um antes de salvar.${erro ? ` ${erro}` : ""}`,
     );
   }
 

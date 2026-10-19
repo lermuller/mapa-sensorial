@@ -47,7 +47,9 @@ describe("avaliações em lote", () => {
       data: "2026-10-10",
       niveis: { som: "2", luz: "0", cheiro: "", lotacao: "1", visual: "", temperatura: "" },
     });
-    expect(lerPlanilha("Nome;x\nCafé;2").linhas[0].busca).toBe("Café");
+    expect(lerPlanilha("Nome;som\nCafé;alto").linhas[0].busca).toBe("Café");
+    // Lugares sem nenhum nível (não visitados) ficam de fora e são contados.
+    expect(lerPlanilha("lugar;som;luz\nA;alto;\nB;;\nC;;baixa\n")).toMatchObject({ ignoradas: 1, linhas: [{ busca: "A" }, { busca: "C" }] });
     expect(lerPlanilha("coluna;x\n1;2").erro).toContain("lugar");
     expect(lerPlanilha("lugar;som\nCafé;alto\n# nota do modelo;\n").linhas).toHaveLength(1);
   });
