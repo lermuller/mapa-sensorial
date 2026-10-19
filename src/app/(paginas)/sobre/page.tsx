@@ -209,7 +209,10 @@ export default function PaginaSobre() {
               Foi a algum lugar? Leva um minuto: diga como estavam os estímulos e, se lembrar, o
               horário.
             </span>
-            <LinkSeta href="/">Abrir o mapa</LinkSeta>
+            <span className="flex flex-wrap gap-x-4">
+              <LinkSeta href="/">Abrir o mapa</LinkSeta>
+              <LinkSeta href="/avaliar">Avaliar vários lugares de uma vez</LinkSeta>
+            </span>
           </li>
           <li className="cartao space-y-1 bg-fundo p-4 text-sm">
             <strong className="block text-base">Adicione um lugar</strong>

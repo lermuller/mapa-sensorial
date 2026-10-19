@@ -99,7 +99,7 @@ export async function criarRelato(
       return { erro: "Você já contou como é este lugar hoje. Amanhã dá para contar de novo." };
     }
     if (error.message.includes("limite_relatos_dia")) {
-      return { erro: "Você chegou ao limite de 30 relatos por dia. Obrigado por ajudar tanto!" };
+      return { erro: "Você chegou ao limite de 100 avaliações por dia. Obrigado por ajudar tanto!" };
     }
     console.error(error);
     return { erro: "Não deu para salvar seu relato agora. Tenta de novo?" };

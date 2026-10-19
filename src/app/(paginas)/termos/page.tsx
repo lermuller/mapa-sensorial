@@ -90,8 +90,9 @@ export default function PaginaTermos() {
           <li>adicionar apenas lugares que existem no Brasil, com nome e localização corretos.</li>
         </ul>
         <p>
-          Para evitar abusos, cada conta pode publicar até 1 relato por lugar por dia e até 30
-          relatos por dia. Esses limites podem mudar.
+          Para evitar abusos, cada conta pode publicar até 1 relato por lugar por dia e até 100
+          relatos ou avaliações por dia. Avaliações de vários lugares de uma vez também precisam
+          ser de visitas reais. Esses limites podem mudar.
         </p>
       </SecaoLegal>
 

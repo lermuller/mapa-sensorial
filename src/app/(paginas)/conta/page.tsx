@@ -203,9 +203,14 @@ export default async function PaginaConta(props: PageProps<"/conta">) {
             </section>
           ) : (
             <section aria-labelledby="titulo-relatos" className="space-y-3">
-              <h2 id="titulo-relatos" className="text-xl">
-                Meus relatos ({relatos.length})
-              </h2>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="titulo-relatos" className="text-xl">
+                  Meus relatos ({relatos.length})
+                </h2>
+                <Link href="/avaliar" className="botao botao-secundario">
+                  Avaliar vários lugares
+                </Link>
+              </div>
               {relatos.length === 0 ? (
                 <div className="flex flex-wrap items-center gap-x-2 text-sm">
                   <span className="italic text-texto-suave">

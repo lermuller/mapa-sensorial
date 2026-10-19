@@ -126,6 +126,13 @@ Os relatos "é sempre assim" entram em todos os horários. Os relatos com horár
 
 O perfil sensorial fica em `usuarios.perfil_sensorial`, só com `perfil_consentido_em` preenchido (regra no banco).
 
+### Avaliar vários lugares de uma vez (/avaliar)
+
+- Para quem tem conta: uma linha por lugar (busca com sugestões, inclusive Brasil todo), os níveis dos 6 estímulos e quando foi (é sempre assim, ou manhã/tarde/noite + dia). Cada linha vira um relato sem texto da própria conta e conta igual aos outros relatos.
+- Planilha: modelo CSV em /avaliar/modelo (`;`, abre no Excel); ao subir, as linhas aparecem com o lugar encontrado automaticamente para a pessoa conferir antes de salvar.
+- Limites: um relato por lugar por dia e até 100 por conta por dia (antes 30). Até 100 linhas por envio.
+- Entradas: aba "Meus relatos" da conta e "Como contribuir" em /sobre.
+
 ### Problemas em lugares
 
 - Botão "Informar um problema" no lugar (com conta): não existe ou fechou, local errado, nome ou tipo errado, repetido, ofensivo ou propaganda, outro. Cada pessoa informa cada motivo uma vez por lugar.
