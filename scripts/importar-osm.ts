@@ -1,9 +1,10 @@
 /**
- * Importa a base inicial de lugares de Porto Alegre do OpenStreetMap (via Overpass).
+ * Importa lugares de uma cidade do OpenStreetMap (via Overpass). Padrão: Porto Alegre.
  *
  *   npm run importar-osm -- --simular                  # só mostra o que seria importado
  *   npm run importar-osm                               # grava no Supabase (precisa de SUPABASE_SECRET_KEY)
  *   npm run importar-osm -- --categorias=saude,cultura # só algumas categorias
+ *   npm run importar-osm -- --cidade="Recife" --uf=PE  # outra cidade
  *
  * Pode ser rodado de novo: atualiza os lugares pelo osm_id, sem duplicar.
  */
@@ -43,12 +44,24 @@ type ElementoOsm = {
   tags?: Record<string, string>;
 };
 
+/** Cidade da importação: --cidade="Recife" --uf=PE (padrão: Porto Alegre, RS). */
+function lerArgumento(nome: string, padrao: string): string {
+  const arg = process.argv.find((a) => a.startsWith(`--${nome}=`));
+  return arg ? arg.slice(nome.length + 3).replace(/^"|"$/g, "") : padrao;
+}
+const CIDADE = lerArgumento("cidade", "Porto Alegre");
+const UF = lerArgumento("uf", "RS").toUpperCase();
+
 function montarConsulta(filtros: string[]): string {
   const partes = filtros
-    .map((f) => `nwr${f}["name"](area.poa);`)
+    .map((f) => `nwr${f}["name"](area.cidade);`)
     .join("\n  ");
-  return `[out:json][timeout:120];
-area["name"="Porto Alegre"]["boundary"="administrative"]["admin_level"="8"]->.poa;
+  // O município (admin_level 8) dentro do estado certo, pelo código ISO do estado:
+  // evita pegar outra cidade com o mesmo nome.
+  return `[out:json][timeout:180];
+area["ISO3166-2"="BR-${UF}"]->.estado;
+rel(area.estado)["boundary"="administrative"]["admin_level"="8"]["name"="${CIDADE.replace(/"/g, "")}"];
+map_to_area->.cidade;
 (
   ${partes}
 );
@@ -104,9 +117,9 @@ function paraLugar(e: ElementoOsm) {
     nome: tags.name.slice(0, 200),
     categoria,
     subtipo: subtipoDe(tags, categoria),
-    // A consulta é da área de Porto Alegre (montarConsulta).
-    cidade: "Porto Alegre",
-    uf: "RS",
+    // A consulta é da área da cidade escolhida (montarConsulta).
+    cidade: CIDADE,
+    uf: UF,
     endereco: endereco(tags)?.slice(0, 300) ?? null,
     bairro: (tags["addr:suburb"] ?? tags["addr:neighbourhood"])?.slice(0, 100) ?? null,
     lat,
@@ -132,6 +145,7 @@ function lerCategoriasEscolhidas(): string[] {
  */
 async function main() {
   const simular = process.argv.includes("--simular");
+  console.log(`Importando ${CIDADE}/${UF}${simular ? " (simulação)" : ""}`);
   const categorias = lerCategoriasEscolhidas();
 
   let supabase: SupabaseClient | null = null;

@@ -1,6 +1,7 @@
 import "server-only";
 import type { Categoria } from "./estimulos";
 import { classificar } from "./osm";
+import { criarClienteServidor } from "./supabase/server";
 
 // Lugares do Brasil todo que ainda não estão na nossa base, a partir do OpenStreetMap:
 // - Photon (photon.komoot.io): busca por texto, para completar os resultados;
@@ -277,6 +278,28 @@ function semAcento(t: string): string {
   return t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+/** Cidade ou bairro com esse nome entre os lugares da base (função regiao_na_base). */
+async function regiaoNaBase(texto: string): Promise<Regiao | null> {
+  try {
+    const supabase = await criarClienteServidor();
+    const { data } = await supabase.rpc("regiao_na_base", { texto }).maybeSingle<{
+      nome: string;
+      cidade: string | null;
+      uf: string | null;
+      tipo: "bairro" | "cidade";
+      sul: number;
+      oeste: number;
+      norte: number;
+      leste: number;
+    }>();
+    if (!data) return null;
+    const { sul, oeste, norte, leste, ...resto } = data;
+    return { ...resto, area: { sul, oeste, norte, leste } };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * O texto é exatamente o nome de um bairro ou cidade ("Moinhos de Vento", "Batel Curitiba",
  * "bairro Bom Fim")? Só com nome exato, para não confundir com nomes de lugares.
@@ -287,6 +310,9 @@ export async function regiaoExata(
 ): Promise<Regiao | null> {
   const procurado = semAcento(texto).replace(/^bairro\s+/, "");
   if (procurado.length < 3) return null;
+  // Primeiro nas cidades e bairros dos lugares que já temos: rápido e não depende do Photon.
+  const daBase = await regiaoNaBase(texto);
+  if (daBase) return daBase;
   const regioes = await buscarRegioes(texto.replace(/^\s*bairro\s+/i, ""), perto);
   return (
     regioes.find((r) => {
