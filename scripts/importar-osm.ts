@@ -57,11 +57,16 @@ function montarConsulta(filtros: string[]): string {
     .map((f) => `nwr${f}["name"](area.cidade);`)
     .join("\n  ");
   // O município (admin_level 8) dentro do estado certo, pelo código ISO do estado:
-  // evita pegar outra cidade com o mesmo nome.
-  return `[out:json][timeout:180];
-area["ISO3166-2"="BR-${UF}"]->.estado;
+  // evita pegar outra cidade com o mesmo nome. O Distrito Federal não tem municípios:
+  // Brasília é o DF inteiro.
+  const cidade =
+    UF === "DF"
+      ? `area["ISO3166-2"="BR-DF"]->.cidade;`
+      : `area["ISO3166-2"="BR-${UF}"]->.estado;
 rel(area.estado)["boundary"="administrative"]["admin_level"="8"]["name"="${CIDADE.replace(/"/g, "")}"];
-map_to_area->.cidade;
+map_to_area->.cidade;`;
+  return `[out:json][timeout:180];
+${cidade}
 (
   ${partes}
 );
