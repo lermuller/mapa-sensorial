@@ -152,10 +152,13 @@ export function interpretarBusca(busca: string): BuscaInterpretada {
         TERMOS[palavras.slice(i, i + tamanho).join(" ")] ??
         TERMOS[singulares.slice(i, i + tamanho).join(" ")];
       if (!tipo) continue;
-      const resto = palavras
-        .filter((_, j) => j < i || j >= i + tamanho)
-        .filter((p) => !LIGACAO.has(p));
-      return { termo: resto.join(" "), tipo };
+      // Tira só as palavras de ligação entre o tipo e o resto ("café no Bom Fim"), não as do
+      // meio de nomes ("shopping Rio de Janeiro", "café na Vila da Penha").
+      const antes = palavras.slice(0, i);
+      const depois = palavras.slice(i + tamanho);
+      while (antes.length > 0 && LIGACAO.has(antes[antes.length - 1])) antes.pop();
+      while (depois.length > 0 && LIGACAO.has(depois[0])) depois.shift();
+      return { termo: [...antes, ...depois].join(" "), tipo };
     }
   }
   return { termo: busca.trim(), tipo: null };

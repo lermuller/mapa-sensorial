@@ -20,6 +20,9 @@ describe("interpretarBusca", () => {
     expect(interpretarBusca("museus em Porto Alegre")).toMatchObject({ termo: "porto alegre" });
     expect(interpretarBusca("café Curitiba")).toMatchObject({ termo: "curitiba" });
     expect(interpretarBusca("Shopping Iguatemi")).toMatchObject({ termo: "iguatemi" });
+    // Ligações no meio do nome ficam.
+    expect(interpretarBusca("shopping rio de janeiro")).toMatchObject({ termo: "rio de janeiro" });
+    expect(interpretarBusca("cafés de São Paulo")).toMatchObject({ termo: "sao paulo" });
   });
 
   it("prefere a expressão mais longa", () => {
