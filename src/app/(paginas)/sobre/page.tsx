@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { BotaoCompartilhar } from "@/components/BotaoCompartilhar";
 import { LinkSeta, VoltarAoMapa } from "@/components/LinkSeta";
 import { Personagem, ROSTO_DO_NIVEL, type FormaPadrao, type Rosto } from "@/components/Personagem";
+import { APOIADORES, NOME_REDE, siteParaMostrar, type RedeSocial } from "@/lib/apoiadores";
 import { env } from "@/lib/env";
 import { COR_ESTIMULO, ESTIMULOS, INFO_ESTIMULO, NIVEIS, ROTULO_NIVEL } from "@/lib/estimulos";
 
@@ -15,6 +17,7 @@ const SECOES = [
   { id: "dados-abertos", rotulo: "Dados abertos" },
   { id: "como-contribuir", rotulo: "Como contribuir" },
   { id: "quem-faz", rotulo: "Quem faz" },
+  { id: "quem-apoia", rotulo: "Quem apoia" },
 ] as const;
 
 const PASSOS: { titulo: string; texto: string; forma: FormaPadrao; rosto: Rosto }[] = [
@@ -291,6 +294,55 @@ export default function PaginaSobre() {
             className="pointer-events-none absolute -bottom-8 -right-8 hidden h-44 w-44 rotate-[-10deg] sm:block"
           />
         </div>
+      </Secao>
+
+      <Secao id="quem-apoia" titulo="Quem apoia">
+        <p>Perfis, sites e grupos que ajudam o Mapa Sensorial a chegar a mais gente.</p>
+        {APOIADORES.length > 0 && (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {APOIADORES.map((a) => {
+              const redes = Object.entries(a.redes ?? {}) as [RedeSocial, string][];
+              return (
+                <li key={a.nome} className="cartao space-y-2 bg-fundo p-4 text-sm">
+                  {/* Fundo branco fixo: logos costumam ser feitos para fundo claro (também no modo escuro). */}
+                  {a.logo && (
+                    <span className="mb-1 flex h-20 items-center rounded-2xl bg-white px-4">
+                      <Image src={a.logo} alt="" className="h-12 w-auto max-w-full object-contain" />
+                    </span>
+                  )}
+                  <strong className="block text-base">{a.nome}</strong>
+                  {a.descricao && <span className="block text-texto-suave">{a.descricao}</span>}
+                  {a.site && (
+                    <LinkSeta href={a.site} externo>
+                      <span className="sr-only">Site de {a.nome}: </span>
+                      {siteParaMostrar(a.site)}
+                    </LinkSeta>
+                  )}
+                  {redes.length > 0 && (
+                    <ul className="flex flex-wrap gap-1.5" aria-label={`Redes de ${a.nome}`}>
+                      {redes.map(([rede, url]) => (
+                        <li key={rede}>
+                          <a href={url} className="chip font-medium">
+                            {NOME_REDE[rede]}
+                            <span className="sr-only"> de {a.nome}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <p className="text-sm text-texto-suave">
+          Quer apoiar o projeto ou divulgar no seu perfil?{" "}
+          {env.emailContato ? (
+            <a href={`mailto:${env.emailContato}`}>Escreva para {env.emailContato}</a>
+          ) : (
+            "Fale com a gente."
+          )}
+        </p>
       </Secao>
     </div>
   );
