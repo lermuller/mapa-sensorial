@@ -299,37 +299,45 @@ export default function PaginaSobre() {
       <Secao id="quem-apoia" titulo="Quem apoia">
         <p>Perfis, sites e grupos que ajudam o Mapa Sensorial a chegar a mais gente.</p>
         {APOIADORES.length > 0 && (
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="space-y-3">
             {APOIADORES.map((a) => {
               const redes = Object.entries(a.redes ?? {}) as [RedeSocial, string][];
               return (
-                <li key={a.nome} className="cartao space-y-2 bg-fundo p-4 text-sm">
+                <li
+                  key={a.nome}
+                  className="flex flex-col gap-5 rounded-[28px] bg-superficie p-6 sm:flex-row sm:items-center"
+                  style={{ border: "var(--linha) solid var(--borda)" }}
+                >
                   {/* Fundo branco fixo: logos costumam ser feitos para fundo claro (também no modo escuro). */}
                   {a.logo && (
-                    <span className="mb-1 flex h-20 items-center rounded-2xl bg-white px-4">
-                      <Image src={a.logo} alt="" className="h-12 w-auto max-w-full object-contain" />
+                    <span className="flex h-24 shrink-0 items-center justify-center rounded-2xl bg-white px-5 sm:w-52">
+                      <Image src={a.logo} alt="" className="h-14 w-auto max-w-full object-contain" />
                     </span>
                   )}
-                  <strong className="block text-base">{a.nome}</strong>
-                  {a.descricao && <span className="block text-texto-suave">{a.descricao}</span>}
-                  {a.site && (
-                    <LinkSeta href={a.site} externo>
-                      <span className="sr-only">Site de {a.nome}: </span>
-                      {siteParaMostrar(a.site)}
-                    </LinkSeta>
-                  )}
-                  {redes.length > 0 && (
-                    <ul className="flex flex-wrap gap-1.5" aria-label={`Redes de ${a.nome}`}>
-                      {redes.map(([rede, url]) => (
-                        <li key={rede}>
-                          <a href={url} className="chip font-medium">
-                            {NOME_REDE[rede]}
-                            <span className="sr-only"> de {a.nome}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <p className="text-lg font-extrabold tracking-[-0.03em]">{a.nome}</p>
+                    {a.descricao && <p className="text-sm text-texto-suave">{a.descricao}</p>}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
+                      {a.site && (
+                        <LinkSeta href={a.site} externo className="text-sm">
+                          <span className="sr-only">Site de {a.nome}: </span>
+                          {siteParaMostrar(a.site)}
+                        </LinkSeta>
+                      )}
+                      {redes.length > 0 && (
+                        <ul className="flex flex-wrap gap-1.5" aria-label={`Redes de ${a.nome}`}>
+                          {redes.map(([rede, url]) => (
+                            <li key={rede}>
+                              <a href={url} className="chip text-sm font-medium">
+                                {NOME_REDE[rede]}
+                                <span className="sr-only"> de {a.nome}</span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </li>
               );
             })}
